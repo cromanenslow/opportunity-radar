@@ -17,11 +17,12 @@ human_gates:
 
 # 打分权重
 scoring:
-  payment_certainty: 30              # 支付确定性
-  verifiability: 25                  # 可验证性
-  ai_fitness: 20                     # AI适配度
-  maintainer_activity: 15            # 维护者活跃度
-  context_reuse: 10                  # 上下文复用
+  payment_certainty: 26              # 支付确定性（原30%）
+  verifiability: 22                  # 可验证性（原25%）
+  ai_fitness: 18                     # AI适配度（原20%）
+  maintainer_activity: 12            # 维护者活跃度（原15%）
+  context_reuse: 7                   # 上下文复用（原10%）
+  competition_intensity: 15          # 竞争强度（新增）
   risk_penalty_max: -25              # 风险惩罚上限
 
 # 每日扫描配置
@@ -72,7 +73,7 @@ payout:
 # 白名单配置
 whitelist:
   initial_size: 100
-  min_stars: 50
+  min_stars: 10
   max_stars: 50000
 
 # 指标追踪

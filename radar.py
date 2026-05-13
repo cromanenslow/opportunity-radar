@@ -277,6 +277,55 @@ def _deep_preflight_issue(candidate: dict) -> list[str]:
     return flags
 
 
+def _enrich_competition_data(candidate: Candidate) -> Candidate:
+    """
+    通过 gh CLI 查询 issue 的 assignees 和开放 PR 数量，
+    用于竞争强度评分。
+    """
+    if candidate.source != "github" or not candidate.repo or not candidate.issue_number:
+        return candidate  # 非 GitHub 来源无法查询
+
+    result = subprocess.run(
+        [
+            "gh", "issue", "view", str(candidate.issue_number),
+            "--repo", candidate.repo,
+            "--json", "assignees,closedByPullRequestsReferences,body,comments,state",
+        ],
+        capture_output=True, text=True, timeout=15,
+    )
+    if result.returncode != 0:
+        return candidate
+
+    try:
+        data = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return candidate
+
+    # assignee count
+    candidate.assignee_count = len(data.get("assignees", []) or [])
+
+    # Count open PRs from closedByPullRequestsReferences
+    open_pr_count = 0
+    for pr in data.get("closedByPullRequestsReferences", []) or []:
+        if pr.get("state") == "OPEN":
+            open_pr_count += 1
+
+    # Also count "/attempt" and PR mentions in comments/body as additional competition signal
+    text_parts = [data.get("body", "") or ""]
+    for comment in data.get("comments", []) or []:
+        text_parts.append(comment.get("body", "") or "")
+    text = " ".join(text_parts).lower()
+    # Count /attempt and "pull/" mentions
+    attempt_count = text.count("/attempt")
+    pull_mention_count = text.count("pull/")
+    # Add these as approximate open PR count (already counted in closedByPullRequestsReferences)
+    combined_pr_estimate = max(open_pr_count, attempt_count + (pull_mention_count > 0))
+
+    candidate.open_pr_count = combined_pr_estimate
+
+    return candidate
+
+
 def _candidate_to_row(scored: ScoredCandidate, require_payment_for_top: bool, min_expected_value: float) -> dict:
     flags = list(scored.candidate.preflight_flags)
     payment_type = scored.candidate.payment_type.value
@@ -312,6 +361,8 @@ def _candidate_to_row(scored: ScoredCandidate, require_payment_for_top: bool, mi
         "verifiability_score": scored.verifiability_score,
         "ai_fitness_score": scored.ai_fitness_score,
         "maintainer_score": scored.maintainer_score,
+        "context_score": scored.context_score,
+        "competition_score": scored.competition_score,
         "risk_penalty": scored.risk_penalty,
         "lane": lane,
         "payment_type": payment_type,
@@ -424,6 +475,18 @@ def cmd_scan(config: dict):
         filtered_payout = before_payout_filter - len(all_candidates)
         if filtered_payout:
             print(f"过滤收款受阻候选: {filtered_payout} 个需要 KYC/税务资料")
+
+    # 竞争强度数据预取
+    print("\n=== 竞争强度数据预取 ===")
+    enriched = 0
+    for i, candidate in enumerate(all_candidates):
+        if candidate.source != "github":
+            continue
+        if i >= 15:  # 最多预取前15个，控制API调用
+            break
+        _enrich_competition_data(candidate)
+        enriched += 1
+    print(f"  已预取 {enriched} 个候选的竞争数据")
 
     weights = load_weights_from_config(str(PROJECT_ROOT / "config.yaml"))
     scored = batch_score(all_candidates, weights)

@@ -8,14 +8,17 @@
 ## 当前里程碑
 ### ✅ 已完成
 - 多平台扫描：GitHub Issues、Algora、IssueHunt、OnlyDust、Huntr
-- 打分引擎：5 维度权重评分（支付确定性 30% / 可验证性 25% / AI 适配度 20% / 维护者活跃度 15% / 上下文复用 10%）
-- 白名单系统：100 初始仓库，stars 50-50000
+- 打分引擎：6 维度权重评分（支付确定性 26% / 可验证性 22% / AI 适配度 18% / 维护者活跃度 12% / 上下文复用 7% / 竞争强度 15%）
+- 白名单系统：100 初始仓库，stars 10-50000
 - 任务追踪器：DeliveryTracker 记录候选→审批→预检→PR→付款全流程
 - 每日扫描 & 日报：最后扫描 2026-05-14，发现 12 个候选
+- Python Expensify watcher：`scripts/watch-expensify-issues.py` 跟踪 Expensify/App $250 External 赏金 Issue
+- Git 版本控制已初始化（1 commit：初始提交）
 
 ### 🔄 进行中
 - 人工审批 Top 赚钱候选
 - 本地预检流程验证
+- Expensify watcher 加入定期调度
 
 ## 团队配置
 | 角色 | 成员 | 职责 |
@@ -23,23 +26,59 @@
 | CEO/审批 | Hermes（Evan-Pro） | 每日审批（15min），方向与边界 |
 | 工程师 | AI Agent | 扫描、打分、本地预检执行 |
 
-**当前无 Git 版本控制**，建议初始化 Git 仓库。
-
 ## 运行状态
-- **最后扫描**：2026-05-14，扫描结果正常
-- **发现候选**：12 个（2 money + 10 practice）
-- **Top 赚钱候选**：
-  1. **crosscompute/jupyterlab-crosscompute #39** — $6.55/hr (money lane)，评分 21.0
-  2. **tscircuit/schematic-trace-solver #29** — $6.55/hr (money lane)，评分 21.0
+- **最后扫描**：2026-05-14 05:00（UTC+8），竞争因子已集成并验证通过
+- **发现候选**：76 个（0 money + 63 可执行 + 8 深度预检过滤 + 5 陈旧过滤）
+- **赚钱榜 Top**：无（降低门槛后仍未发现新的 money 候选）
+- **练手池 Top**：
+  1. **oppia/oppia #24807** — 评分 34.5，可自动化修复 pagination 组件显示问题
+  2. **waxeye7/screeps-bounty-arena #8** — 评分 32.82，生成 markdown 模拟报告
+  3. **waxeye7/screeps-bounty-arena #7** — 评分 32.82，RCL 里程碑成功门控
 - **进行中任务**：lugassawan/swe-workbench #164 — reviewing 状态
 - **30天指标**：赚钱候选/天 0.1，预检通过率 0.0，合并率 0.0，$/agent-hour $0.0
+- **Expensify watcher**：✅ Python 脚本 `scripts/watch-expensify-issues.py` 已创建，使用 Issues List API 过滤 [$250] + External 标签 + unassigned；JS 备选 `scripts/watch-expensify.js`；待加入 cron 调度
 - **技术栈**：Python（主编排脚本），TypeScript（备选）
-- **版本控制**：❌ 无 Git
+- **版本控制**：✅ Git 已初始化（1 commit），当前无远程仓库
+
+## Pre-check Findings (2026-05-14)
+
+### 1. crosscompute/jupyterlab-crosscompute #39 — "Detect cursor focus"
+- **Bounty**: $100 (mentioned in issue body, no GitHub bounty label)
+- **状态**: ✅ Open, Unassigned, 7 comments
+- **要求**: JupyterLab extension modification — detect cursor/focus on shell tabs vs file browser, log paths accordingly
+- **难度**: Easy-Medium — TypeScript JupyterLab extension, well-scoped, existing experiment code
+- **AI可行性**: ✅ Yes — single `src/index.ts` modification, JupyterLab widget API
+- **竞争状况**: ⚠️ 极高 — 仅2026-05-13一天就有4个PR提交 (#40, #41, #42, #43)，多人同时在抢
+- **风险**: 高 — first-merged-wins模式，已有多个竞争者提交代码等待合并
+- **维护者活跃度**: 中等 — invisibleroads创建了issue，但repo最后push是2025-04
+- **结论**: ⚠️ **有条件可行** — 技术门槛低，但race condition极其严重。如果要投入，需要极快提交（< 24h内完成并PR）。建议观望1-2天看是否有PR被合并。
+
+### 2. tscircuit/schematic-trace-solver #29 — "New Phase To combine same-net trace segments"
+- **Bounty**: $100 (labeled 💎 Bounty + $100 on GitHub, also on Algora)
+- **状态**: ✅ Open, Unassigned, 30 comments, 1 open PR (#290 by grantf04)
+- **要求**: 实现新的pipeline phase，合并同一net中距离相近的trace segments
+- **难度**: Medium-Hard — 需要理解PCB schematic trace solver的复杂pipeline架构
+- **AI可行性**: ⚠️ 有条件 — TypeScript，但需要大量上下文理解现有solvers架构
+- **竞争状况**: ⚠️ 极高 — 7+人/attempt，已有PR #290在队列中等待review
+- **风险**: 极高 — 已有开放PR，如果grantf04的PR被合并则前功尽弃
+- **维护者活跃度**: 高 — seveibar活跃，repo持续更新（最后push 2026-05-08），163 forks
+- **结论**: ❌ **不建议投入** — 已有PR提交，多人竞争，复杂度高，AI需要大量时间理解代码库
+
+### 3. tscircuit/schematic-trace-solver #66 (补充验证)
+- **早报提及**$150 bounty，但实际是已关闭的PR（非open issue），saish9901提交后关闭但未合并
+- **结论**: ❌ **不可用** — 非开放悬赏
+
+### 总结建议
+- 两个Top赚钱候选都面临**严重竞争**（多个PR已提交）
+- 如果必须选择，**#39 (crosscompute)** 技术门槛低、更适合AI，但需极速执行
+- **建议策略**：继续扫描新候选，同时关注这两个issue是否有PR被合并释放机会
+- 可考虑降低star门槛以发现竞争较少的早期bounty
 
 ## 下一步方向
-1. 考虑将 Expensify watcher 加入定期调度
-2. 评估 crosscompute/jupyterlab-crosscompute #39 可行性
-3. 运行本地预检流程验证候选可行性
-4. 初始化 Git 版本控制，建立开发分支
-5. 优化扫描精度，提升 money 候选发现率
-6. 建立 KYC/税务过滤后的支付流水线
+1. ✅ 竞争强度因子优化 — 已加入第6维度（权重15%），通过 gh issue view 获取 assignees/PR 数据
+2. 配置 Expensify watcher 的 cron/launchd 定期执行，实现自动化发现
+3. 评估 crosscompute/jupyterlab-crosscompute #39 可行性
+4. 运行本地预检流程验证候选可行性
+5. 连接远程 Git 仓库，建立开发分支
+6. 持续优化扫描精度，提升 money 候选发现率
+7. 建立 KYC/税务过滤后的支付流水线

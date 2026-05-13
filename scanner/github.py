@@ -320,13 +320,13 @@ REPO_SEARCH_STRATEGIES = [
         "name": "good-first-issues-ts",
         "query": "good-first-issues:>5",
         "languages": ["typescript"],
-        "stars": "100..50000",
+        "stars": "10..50000",
     },
     {
         "name": "good-first-issues-py",
         "query": "good-first-issues:>5",
         "languages": ["python"],
-        "stars": "100..50000",
+        "stars": "10..50000",
     },
 ]
 

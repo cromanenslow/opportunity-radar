@@ -3,11 +3,12 @@
 EV = 奖金 × 接受概率 × 支付概率 / 预估小时数 - 风险成本
 
 Score 权重:
-  30% 支付确定性
-  25% 可验证性
-  20% AI适配度
-  15% 维护者活跃度
-  10% 上下文复用
+  26% 支付确定性
+  22% 可验证性
+  18% AI适配度
+  12% 维护者活跃度
+   7% 上下文复用
+  15% 竞争强度
   - 风险惩罚
 """
 
@@ -66,6 +67,8 @@ class Candidate:
     issue_age_days: float = 0.0       # 距离最后更新的天数
     preflight_flags: list[str] = field(default_factory=list)
     description: str = ""
+    open_pr_count: int = 0            # 引用此 issue 的开放 PR 数量（竞争强度用）
+    assignee_count: int = 0           # 被指派者数量（竞争强度用）
 
 
 def payment_certainty_score(
@@ -159,6 +162,23 @@ def context_reuse_score(candidate: Candidate) -> float:
     return min(score, 100)
 
 
+def competition_intensity_score(candidate: Candidate) -> float:
+    """
+    竞争强度评分 0-100
+    通过 open PR 数量 + assignees 数量判断竞争激烈程度
+    0 个竞争者 → 高分 (100)  无竞争，黄金机会
+    1 个竞争者 → 中分 (50)   轻度竞争
+    >=2 个竞争者 → 低分 (20)  激烈竞争
+    """
+    total = candidate.open_pr_count + candidate.assignee_count
+    if total == 0:
+        return 100.0
+    elif total == 1:
+        return 50.0
+    else:
+        return 20.0
+
+
 def risk_penalty(candidate: Candidate) -> float:
     """风险惩罚 0 到 -25"""
     penalty = 0.0
@@ -204,6 +224,7 @@ class ScoredCandidate:
     ai_fitness_score: float
     maintainer_score: float
     context_score: float
+    competition_score: float
     risk_penalty: float
     expected_value: float
     needs_human_approval: bool
@@ -217,11 +238,12 @@ def score_candidate(candidate: Candidate, weights: dict | None = None) -> Scored
     """对候选任务打分"""
     if weights is None:
         weights = {
-            "payment_certainty": 0.30,
-            "verifiability": 0.25,
-            "ai_fitness": 0.20,
-            "maintainer_activity": 0.15,
-            "context_reuse": 0.10,
+            "payment_certainty": 0.26,
+            "verifiability": 0.22,
+            "ai_fitness": 0.18,
+            "maintainer_activity": 0.12,
+            "context_reuse": 0.07,
+            "competition_intensity": 0.15,
         }
 
     p = payment_certainty_score(
@@ -233,6 +255,7 @@ def score_candidate(candidate: Candidate, weights: dict | None = None) -> Scored
     a = ai_fitness_score(candidate)
     m = maintainer_activity_score(candidate)
     c = context_reuse_score(candidate)
+    comp = competition_intensity_score(candidate)
     r = risk_penalty(candidate)
 
     total = (
@@ -241,6 +264,7 @@ def score_candidate(candidate: Candidate, weights: dict | None = None) -> Scored
         + weights["ai_fitness"] * a
         + weights["maintainer_activity"] * m
         + weights["context_reuse"] * c
+        + weights["competition_intensity"] * comp
         + r
     )
 
@@ -288,6 +312,7 @@ def score_candidate(candidate: Candidate, weights: dict | None = None) -> Scored
         ai_fitness_score=a,
         maintainer_score=m,
         context_score=c,
+        competition_score=comp,
         risk_penalty=r,
         expected_value=round(ev, 2),
         needs_human_approval=needs_approval,
@@ -313,11 +338,12 @@ def load_weights_from_config(config_path: str = "config.yaml") -> dict:
             cfg = yaml.safe_load(f)
         s = cfg.get("scoring", {})
         return {
-            "payment_certainty": (s.get("payment_certainty", 30)) / 100,
-            "verifiability": (s.get("verifiability", 25)) / 100,
-            "ai_fitness": (s.get("ai_fitness", 20)) / 100,
-            "maintainer_activity": (s.get("maintainer_activity", 15)) / 100,
-            "context_reuse": (s.get("context_reuse", 10)) / 100,
+            "payment_certainty": (s.get("payment_certainty", 26)) / 100,
+            "verifiability": (s.get("verifiability", 22)) / 100,
+            "ai_fitness": (s.get("ai_fitness", 18)) / 100,
+            "maintainer_activity": (s.get("maintainer_activity", 12)) / 100,
+            "context_reuse": (s.get("context_reuse", 7)) / 100,
+            "competition_intensity": (s.get("competition_intensity", 15)) / 100,
         }
     return None
 
@@ -351,5 +377,6 @@ if __name__ == "__main__":
     print(f"Score: {result.total_score} | EV: ${result.expected_value}/hr")
     print(f"  Payment: {result.payment_score} | Verify: {result.verifiability_score}")
     print(f"  AI Fit: {result.ai_fitness_score} | Maintainer: {result.maintainer_score}")
-    print(f"  Context: {result.context_score} | Risk: {result.risk_penalty}")
+    print(f"  Context: {result.context_score} | Competition: {result.competition_score}")
+    print(f"  Risk: {result.risk_penalty}")
     print(f"  Needs approval: {result.needs_human_approval}")
