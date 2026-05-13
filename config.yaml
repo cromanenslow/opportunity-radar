@@ -54,6 +54,7 @@ scanner:
   max_issue_age_days: 90             # 只保留近90天仍活跃的 issue
   require_payment_for_top: true      # Top 候选必须有明确支付路径
   min_expected_value: 0              # Top 候选必须为正 EV
+  known_bounty_scan_limit: 10        # 每天扫描已知赏金仓库数量（热区表）
 
 # 本地预检配置
 execution:

@@ -24,7 +24,12 @@ PROJECT_ROOT = Path(__file__).parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from scoring.engine import Candidate, PaymentType, ScoredCandidate, batch_score, load_weights_from_config
-from scanner.github import run_daily_github_scan, search_issues
+from scanner.github import (
+    run_daily_github_scan,
+    search_issues,
+    scan_known_bounty_repos,
+    load_known_bounty_repos,
+)
 from scanner.platforms import PlatformBounty, run_daily_platform_scan
 from tracker.tracker import DeliveryTracker, TaskRecord
 from whitelist.initial_whitelist import load_whitelist
@@ -440,19 +445,50 @@ def cmd_scan(config: dict):
     github_issues = run_daily_github_scan(config)
 
     print("\n=== 白名单 Repo 定向扫描 ===")
-    priority_repos = [repo for repo in whitelist if repo.has_sponsors or repo.has_algora_tipping or repo.has_opencollective]
-    scan_limit = min(5, len(priority_repos))
-    print(f"  扫描 {scan_limit} 个有赞助的 repo（轮流制）...")
+    # 按 bounty_history 排序，优先扫描有赏金历史/打赏渠道的仓库
+    priority_repos = sorted(
+        [repo for repo in whitelist if repo.bounty_history > 0 or repo.has_algora_tipping or repo.has_sponsors or repo.has_opencollective],
+        key=lambda r: r.bounty_history,
+        reverse=True,
+    )
+    scan_limit = min(20, len(priority_repos))  # 从 5 -> 20（来自优化建议2）
+    print(f"  扫描 {scan_limit} 个高优先级 repo（按赏金历史排序）...")
     seen_urls = {issue.url for issue in github_issues}
     for repo in priority_repos[:scan_limit]:
         try:
-            issues = search_issues(query=f"repo:{repo.full_name}", labels=["help wanted"], limit=5, sort="updated")
+            # 对有 bounty_history 的 repo，同时搜 bounty 标签
+            labels_to_search = ["help wanted"]
+            if repo.bounty_history > 0:
+                labels_to_search = ["bounty", "help wanted"]
+            issues = search_issues(query=f"repo:{repo.full_name}", labels=labels_to_search, limit=5, sort="updated")
             new_issues = [issue for issue in issues if issue.url not in seen_urls]
             seen_urls.update(issue.url for issue in new_issues)
             github_issues.extend(new_issues)
             print(f"  {repo.full_name}: +{len(new_issues)}")
         except Exception:
             continue
+
+    # 已知赏金仓库补充扫描（从热区表加载不在白名单中的仓库）
+    known_repos = load_known_bounty_repos(config)
+    known_repo_names = {r["repo"] for r in known_repos}
+    whitelist_names_set = {r.full_name for r in whitelist}
+    extra_bounty_repos = [r for r in known_repos if r["repo"] not in whitelist_names_set]
+    if extra_bounty_repos:
+        print(f"  热区补充扫描: {len(extra_bounty_repos)} 个不在白名单的赏金仓库...")
+        for repo_info in extra_bounty_repos[:5]:  # 限制5个避免太多请求
+            repo_name = repo_info.get("repo", "")
+            if not repo_name:
+                continue
+            try:
+                issues = search_issues(query=f"repo:{repo_name} is:issue is:open", labels=["help wanted", "bounty"], limit=5, sort="updated")
+                new_issues = [issue for issue in issues if issue.url not in seen_urls]
+                seen_urls.update(issue.url for issue in new_issues)
+                github_issues.extend(new_issues)
+                if new_issues:
+                    print(f"    {repo_name}: +{len(new_issues)}")
+            except Exception:
+                continue
+
     print(f"  白名单扫描后总计: {len(github_issues)} 个候选 issue")
 
     all_candidates: list[Candidate] = []

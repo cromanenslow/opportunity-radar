@@ -313,6 +313,51 @@ SEARCH_STRATEGIES = [
         "labels": ["bug", "good first issue"],
         "sort": "updated",
     },
+    # 定向赏金：美元符号（标题/正文中有金额的 issue）
+    {
+        "name": "dollar-bounty-ts",
+        "query": "$",
+        "languages": ["typescript"],
+        "labels": None,
+        "sort": "updated",
+    },
+    {
+        "name": "dollar-bounty-py",
+        "query": "$",
+        "languages": ["python"],
+        "labels": None,
+        "sort": "updated",
+    },
+    # 定向赏金：安全赏金
+    {
+        "name": "bug-bounty-ts",
+        "query": "bug bounty",
+        "languages": ["typescript"],
+        "labels": None,
+        "sort": "updated",
+    },
+    {
+        "name": "bug-bounty-py",
+        "query": "bug bounty",
+        "languages": ["python"],
+        "labels": None,
+        "sort": "updated",
+    },
+    # 定向赏金：付费任务
+    {
+        "name": "paid-issues-ts",
+        "query": "paid",
+        "languages": ["typescript"],
+        "labels": None,
+        "sort": "updated",
+    },
+    {
+        "name": "paid-issues-py",
+        "query": "paid",
+        "languages": ["python"],
+        "labels": None,
+        "sort": "updated",
+    },
 ]
 
 REPO_SEARCH_STRATEGIES = [
@@ -338,6 +383,121 @@ def _day_rotation(items: list, count: int) -> list:
     offset = date.today().toordinal() % len(items)
     rotated = items[offset:] + items[:offset]
     return rotated[:count]
+
+
+def load_known_bounty_repos(config: dict) -> list[dict]:
+    """从 known-bounty-repos.yaml 加载已知赏金仓库列表"""
+    kr_path = Path(__file__).parent.parent / "known-bounty-repos.yaml"
+    if kr_path.exists():
+        import yaml
+        with open(kr_path, encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        return data.get("known_bounty_repos", [])
+    # Fallback: 从 config.yaml 中读取
+    kr_cfg = config.get("known_bounty_repos", [])
+    if kr_cfg:
+        return kr_cfg
+    print("  ⚠️ 未找到已知赏金仓库配置 (known-bounty-repos.yaml)")
+    return []
+
+
+def scan_known_bounty_repos(config: dict, seen_urls: set[str] | None = None) -> list[RawIssue]:
+    """专门扫描已知赏金仓库的新 issue
+
+    对 known-bounty-repos.yaml 中的每个仓库，主动搜索最新 open issue。
+    优先搜索 bounty 相关标签，fallback 到 help wanted / good first issue。
+    """
+    all_issues: list[RawIssue] = []
+    seen = seen_urls or set()
+    repos = load_known_bounty_repos(config)
+
+    if not repos:
+        return all_issues
+
+    stacks = config.get("stacks", ["typescript", "python"])
+
+    print(f"\n=== 已知赏金仓库热区扫描 ({len(repos)} 个仓库) ===")
+
+    # 按 bounty_source 分组，优先扫描 proven-payer
+    prioritized = sorted(
+        repos,
+        key=lambda r: (
+            2 if "proven-payer" in r.get("tags", []) else
+            1 if r.get("bounty_source") in ("algora", "expensify-external") else
+            0
+        ),
+        reverse=True,
+    )
+
+    # 每天扫描上限，避免请求过多
+    scan_limit = config.get("scanner", {}).get("known_bounty_scan_limit", 10)
+    daily_repos = _day_rotation(prioritized, scan_limit)
+
+    for repo_info in daily_repos:
+        repo_name = repo_info.get("repo", "")
+        language = repo_info.get("language", "")
+        repo_labels = repo_info.get("labels", [])
+
+        # 跳过不符合当前技术栈的 repo（除非是 proven-payer）
+        if language and language.lower() not in [s.lower() for s in stacks]:
+            if "proven-payer" not in repo_info.get("tags", []):
+                continue
+
+        if not repo_name:
+            continue
+
+        print(f"  📡 {repo_name}...", end=" ", flush=True)
+
+        found = 0
+        # 策略 1: 搜索 bounty 相关标签（最高优先级）
+        bounty_labels = [l for l in repo_labels if any(kw in l.lower() for kw in ["bounty", "reward", "$", "💰", "🏆", "💎"])]
+        if bounty_labels:
+            issues = search_issues(
+                query=f"repo:{repo_name} is:issue is:open",
+                labels=bounty_labels[:2],
+                sort="updated",
+                limit=5,
+            )
+            new = [i for i in issues if i.url not in seen]
+            for i in new:
+                seen.add(i.url)
+            all_issues.extend(new)
+            found += len(new)
+
+        # 策略 2: 搜索 help wanted / good first issue（兜底）
+        if found < 3:
+            for fallback_label in ["help wanted", "good first issue"]:
+                if any(fallback_label in l.lower() for l in repo_labels):
+                    issues = search_issues(
+                        query=f"repo:{repo_name} is:issue is:open",
+                        labels=[fallback_label],
+                        sort="updated",
+                        limit=3,
+                    )
+                    new = [i for i in issues if i.url not in seen]
+                    for i in new:
+                        seen.add(i.url)
+                    all_issues.extend(new)
+                    found += len(new)
+                    break  # 只搜一个 fallback 标签
+
+        # 策略 3: 如果没有标签匹配，搜最新 open issue
+        if found == 0:
+            issues = search_issues(
+                query=f"repo:{repo_name} is:issue is:open",
+                sort="updated",
+                limit=3,
+            )
+            new = [i for i in issues if i.url not in seen]
+            for i in new:
+                seen.add(i.url)
+            all_issues.extend(new)
+            found += len(new)
+
+        print(f"{found} 个新 issue")
+
+    print(f"  热区扫描总计: {len(all_issues)} 个 candidate")
+    return all_issues
 
 
 def run_daily_github_scan(config: dict) -> list[RawIssue]:
@@ -404,6 +564,10 @@ def run_daily_github_scan(config: dict) -> list[RawIssue]:
             seen_urls.update(i.url for i in new)
             all_issues.extend(new)
         print(f"    扫描了 {min(3, len(repos))} 个 repo")
+
+    # ★ 已知赏金仓库热区扫描 — 新增
+    known_bounty_issues = scan_known_bounty_repos(config, seen_urls)
+    all_issues.extend(known_bounty_issues)
 
     print(f"\n总计: {len(all_issues)} 个候选 issue")
     return all_issues

@@ -1,0 +1,242 @@
+# Opportunity Radar - 已知赏金仓库热区表
+# 这些仓库已知会发布赏金/付费 issue，每日主动扫描
+# 来源：Algora, IssueHunt, OnlyDust, GitHub bounty 标签, 人工验证
+# 更新时间：2026-05-14
+
+known_bounty_repos:
+  # ==================== TypeScript / JavaScript ====================
+
+  # Expensify - 最大开源赏金项目之一，使用 "External" 标签，月赏金 $50k+
+  - repo: Expensify/App
+    language: typescript
+    labels: ["External", "Help Wanted", "Bug"]
+    bounty_source: "expensify-external"
+    expected_bounty_range: [50, 10000]
+    tags: ["high-volume", "daily", "proven-payer"]
+    notes: "使用 'External' 标签，标题中含 [$X] 金额"
+
+  # tscircuit 系列 - 通过 Algora 平台发放赏金
+  - repo: tscircuit/schematic-trace-solver
+    language: typescript
+    labels: ["💎 Bounty", "$100"]
+    bounty_source: "algora"
+    expected_bounty_range: [50, 500]
+    tags: ["algora", "proven-payer"]
+    notes: "使用 '💎 Bounty' 和 '$100' 标签标记赏金"
+
+  - repo: tscircuit/tscircuit-autorouter
+    language: typescript
+    labels: ["💎 Bounty", "$100"]
+    bounty_source: "algora"
+    expected_bounty_range: [50, 500]
+    tags: ["algora", "proven-payer"]
+    notes: "活跃的自动化布线项目，Algora 赏金"
+
+  - repo: tscircuit/core
+    language: typescript
+    labels: ["bounty", "help wanted"]
+    bounty_source: "algora"
+    expected_bounty_range: [50, 300]
+    tags: ["algora"]
+
+  - repo: tscircuit/contribution-tracker
+    language: typescript
+    labels: ["bounty"]
+    bounty_source: "algora"
+    expected_bounty_range: [50, 300]
+    tags: ["algora"]
+
+  # Cal.com - 使用 Algora 平台赏金
+  - repo: calcom/cal.com
+    language: typescript
+    labels: ["bounty", "help wanted", "good first issue"]
+    bounty_source: "algora"
+    expected_bounty_range: [100, 1000]
+    tags: ["algora", "high-volume"]
+
+  # Twenty CRM - 定期发布赏金 issue
+  - repo: twentyhq/twenty
+    language: typescript
+    labels: ["bounty", "good first issue", "help wanted"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [50, 500]
+    tags: ["active", "proven-payer"]
+
+  # NocoDB - 开源 Airtable 替代，有赏金计划
+  - repo: nocodb/nocodb
+    language: typescript
+    labels: ["bounty", "help wanted", "good first issue"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [50, 500]
+    tags: ["active"]
+
+  # Amplication - 有赏金系统
+  - repo: amplication/amplication
+    language: typescript
+    labels: ["bounty", "help wanted"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [100, 500]
+    tags: ["active"]
+
+  # Maybe Finance - 开源财务管理，有 OpenCollective
+  - repo: maybe-finance/maybe
+    language: typescript
+    labels: ["bounty", "good first issue", "help wanted"]
+    bounty_source: "opencollective"
+    expected_bounty_range: [50, 300]
+    tags: ["opencollective"]
+
+  # Plasmic - 可视化页面构建器，有赏金计划
+  - repo: plasmic-hq/plasmic
+    language: typescript
+    labels: ["bounty", "help wanted"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [100, 1000]
+    tags: ["active"]
+
+  # n8n - 工作流自动化，定期发布付费 issue
+  - repo: n8n-io/n8n
+    language: typescript
+    labels: ["bounty", "help wanted", "good first issue"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [50, 500]
+    tags: ["active", "high-volume"]
+
+  # Lobe Chat - AI 聊天界面，有赏金标签
+  - repo: lobehub/lobe-chat
+    language: typescript
+    labels: ["💰 Reward", "help wanted", "good first issue"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [50, 300]
+    tags: ["active"]
+
+  # Postiz - 开源社交媒体排程
+  - repo: postiz-app/postiz
+    language: typescript
+    labels: ["bounty", "help wanted"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [50, 200]
+    tags: ["active"]
+
+  # Appwrite - 后端平台，有贡献者计划
+  - repo: appwrite/appwrite
+    language: typescript
+    labels: ["bounty", "help wanted", "good first issue"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [100, 500]
+    tags: ["high-volume"]
+
+  #  ==================== Python ====================
+
+  # Oppia - 教育平台，有成熟赏金计划
+  - repo: oppia/oppia
+    language: python
+    labels: ["bounty", "good first issue", "help wanted"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [50, 500]
+    tags: ["proven-payer", "high-volume"]
+
+  # Apache APISIX - API 网关，有赏金计划
+  - repo: apache/apisix
+    language: python
+    labels: ["bounty", "help wanted"]
+    bounty_source: "community"
+    expected_bounty_range: [50, 500]
+    tags: ["foundation"]
+
+  # Home Assistant - 智能家居平台，有 bug bounty
+  - repo: home-assistant/core
+    language: python
+    labels: ["bounty", "help wanted", "good first issue"]
+    bounty_source: "bug-bounty"
+    expected_bounty_range: [100, 2000]
+    tags: ["high-volume", "proven-payer"]
+
+  # Mathesar - 开源数据库管理 UI
+  - repo: mathesar-foundation/mathesar
+    language: python
+    labels: ["bounty", "good first issue"]
+    bounty_source: "opencollective"
+    expected_bounty_range: [50, 300]
+    tags: ["opencollective"]
+
+  # SolFoundry - 赏金平台项目自身
+  - repo: SolFoundry/solfoundry
+    language: python
+    labels: ["🏭 Bounty"]
+    bounty_source: "platform"
+    expected_bounty_range: [50, 1000]
+    tags: ["bounty-platform"]
+    notes: "自身就是赏金平台，issue 中含 🏭 Bounty 标签"
+
+  # Zama - 同态加密库，明确赏金计划
+  - repo: zama-ai/bounty-program
+    language: python
+    labels: ["bounty"]
+    bounty_source: "program"
+    expected_bounty_range: [100, 5000]
+    tags: ["program"]
+
+  # AsyncAPI - 社区赏金计划
+  - repo: asyncapi/community
+    language: python
+    labels: ["bounty", "good first issue"]
+    bounty_source: "community"
+    expected_bounty_range: [50, 300]
+    tags: ["foundation"]
+
+  # Mattermost - 开源协作平台
+  - repo: mattermost/mattermost
+    language: python
+    labels: ["bounty", "help wanted", "good first issue"]
+    bounty_source: "bug-bounty"
+    expected_bounty_range: [100, 1000]
+    tags: ["proven-payer", "high-volume"]
+
+  # BoxyHQ - 企业 SSO 和安全工具
+  - repo: boxyhq/saas-starter-kit
+    language: typescript
+    labels: ["bounty", "help wanted"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [50, 300]
+    tags: ["active"]
+
+  # Gitpod - 在线开发环境
+  - repo: gitpod-io/gitpod
+    language: typescript
+    labels: ["bounty", "help wanted", "good first issue"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [100, 500]
+    tags: ["high-volume"]
+
+  # Supabase - Firebase 开源替代
+  - repo: supabase/supabase
+    language: typescript
+    labels: ["bounty", "help wanted", "good first issue"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [100, 1000]
+    tags: ["high-volume", "proven-payer"]
+
+  # Coder - 远程开发环境
+  - repo: coder/coder
+    language: typescript
+    labels: ["bounty", "help wanted"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [50, 500]
+    tags: ["active"]
+
+  # TraceTest - 基于 OpenTelemetry 的测试工具
+  - repo: froglogic/tracetest
+    language: typescript
+    labels: ["bounty", "help wanted", "good first issue"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [50, 300]
+    tags: ["active"]
+
+  # Vercel AI SDK - AI 开发工具
+  - repo: vercel/ai
+    language: typescript
+    labels: ["bounty", "help wanted"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [100, 500]
+    tags: ["high-profile"]

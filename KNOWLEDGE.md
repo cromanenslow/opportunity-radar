@@ -14,11 +14,12 @@
 - 每日扫描 & 日报：最后扫描 2026-05-14，发现 12 个候选
 - Python Expensify watcher：`scripts/watch-expensify-issues.py` 跟踪 Expensify/App $250 External 赏金 Issue
 - Git 版本控制已初始化（1 commit：初始提交）
+- **已知赏金仓库热区表**（2026-05-14 07:30）：29 个已验证赏金仓库（TypeScript 21 + Python 8），含 Expensify/App、tscircuit/*、oppia/oppia、calcom/cal.com 等 proven payer。配套 config.yaml（known_bounty_scan_limit=10）+ scanner/github.py 专用扫描函数（三层兜底策略），白名单扫描从 5→20 个仓库
 
 ### 🔄 进行中
 - 人工审批 Top 赚钱候选
 - 本地预检流程验证
-- Expensify watcher 加入定期调度
+- Expensify watcher 已通过 launchd 每1h执行（com.lflz.expensify-watcher），正常工作中
 
 ## 团队配置
 | 角色 | 成员 | 职责 |
@@ -27,16 +28,16 @@
 | 工程师 | AI Agent | 扫描、打分、本地预检执行 |
 
 ## 运行状态
-- **最后扫描**：2026-05-14 05:00（UTC+8），竞争因子已集成并验证通过
-- **发现候选**：76 个（0 money + 63 可执行 + 8 深度预检过滤 + 5 陈旧过滤）
-- **赚钱榜 Top**：无（降低门槛后仍未发现新的 money 候选）
+- **最后扫描**：2026-05-14 06:32（UTC+8），竞争因子已集成并验证通过
+- **发现候选**：79 个原始 → 66 可执行（1 money + 58 可执行 + 8 深度预检过滤 + 12 陈旧过滤）
+- **赚钱榜 Top**：Expensify/App#88700 — 评分 58.0，$250 bounty，Android crash bug（pre-check 结论：⚠️ 暂缓 — assignee 20天无法复现，3竞争者）
 - **练手池 Top**：
   1. **oppia/oppia #24807** — 评分 34.5，可自动化修复 pagination 组件显示问题
-  2. **waxeye7/screeps-bounty-arena #8** — 评分 32.82，生成 markdown 模拟报告
-  3. **waxeye7/screeps-bounty-arena #7** — 评分 32.82，RCL 里程碑成功门控
+  2. **SolFoundry/solfoundry #861** — 评分 32.82，Bounty T3: Full Autonomous Bounty-Hunting Agent
+  3. **vuetifyjs/vuetify #22376** — 评分 28.7，[Bug] iPad virtual keyboard causing VMenu position change
 - **进行中任务**：lugassawan/swe-workbench #164 — reviewing 状态
 - **30天指标**：赚钱候选/天 0.1，预检通过率 0.0，合并率 0.0，$/agent-hour $0.0
-- **Expensify watcher**：✅ Python 脚本 `scripts/watch-expensify-issues.py` 已创建，使用 Issues List API 过滤 [$250] + External 标签 + unassigned；JS 备选 `scripts/watch-expensify.js`；待加入 cron 调度
+- **Expensify watcher**：✅ Python 脚本已创建，`com.lflz.expensify-watcher` 已通过 launchd 每小时自动执行，正常运行中；另存有 `com.user.expensify-watcher` 未加载
 - **技术栈**：Python（主编排脚本），TypeScript（备选）
 - **版本控制**：✅ Git 已初始化（1 commit），当前无远程仓库
 
@@ -76,9 +77,12 @@
 
 ## 下一步方向
 1. ✅ 竞争强度因子优化 — 已加入第6维度（权重15%），通过 gh issue view 获取 assignees/PR 数据
-2. 配置 Expensify watcher 的 cron/launchd 定期执行，实现自动化发现
-3. 评估 crosscompute/jupyterlab-crosscompute #39 可行性
-4. 运行本地预检流程验证候选可行性
-5. 连接远程 Git 仓库，建立开发分支
-6. 持续优化扫描精度，提升 money 候选发现率
-7. 建立 KYC/税务过滤后的支付流水线
+2. ✅ Expensify watcher launchd 调度 — 已通过 launchd 配置为每小时自动执行
+3. ✅ 评估 crosscompute/jupyterlab-crosscompute #39 可行性 — 已做，竞争过高，暂缓
+4. ✅ 2026-05-14 06:32 新扫描 + Expensify/App#88700 pre-check — 结论：暂缓（assignee 卡住）
+5. ✅ 已知赏金仓库热区表（known-bounty-repos.yaml）— 29 个仓库，三层兜底扫描函数，白名单 5→20
+6. 触发首次已知赏金仓库热区扫描，验证 money 发现率提升效果
+7. 寻找下一个合适的 money 候选（$500+，JS/TS，竞争低，assignee 活跃）
+8. 连接远程 Git 仓库，建立开发分支
+9. 持续优化扫描精度，提升 money 候选发现率
+10. 建立 KYC/税务过滤后的支付流水线
