@@ -1,0 +1,100 @@
+full_name,language,stars,install_cmd,test_cmd,maintainer_response_days,ext_pr_merge_rate_90d,has_sponsors,has_opencollective,has_algora_tipping,bounty_history,common_task_types,priority
+vercel/next.js,typescript,130000,pnpm install,pnpm test,2,0.3,True,False,True,5000,bug|docs|test,0
+facebook/react,typescript,230000,yarn install,yarn test,3,0.15,True,False,False,2000,bug|rfc|test,0
+vuejs/core,typescript,48000,pnpm install,pnpm test,5,0.2,True,True,False,1000,bug|docs|migration,0
+angular/angular,typescript,96000,yarn install,yarn test,4,0.2,True,False,False,3000,bug|docs|test,0
+sveltejs/svelte,typescript,81000,pnpm install,pnpm test,3,0.25,True,True,True,2000,bug|docs,0
+microsoft/TypeScript,typescript,103000,npm install,npm test,7,0.1,True,False,False,1000,bug|compiler|test,0
+denoland/deno,typescript,100000,cargo build,cargo test,3,0.15,True,False,True,3000,bug|feature|docs,0
+vitejs/vite,typescript,72000,pnpm install,pnpm test,2,0.3,True,True,True,2000,bug|plugin|docs,0
+tailwindlabs/tailwindcss,typescript,86000,npm install,npm test,2,0.2,True,True,True,1500,bug|docs|config,0
+prisma/prisma,typescript,42000,npm install,npm test,3,0.25,True,False,True,3000,bug|migration|schema,0
+trpc/trpc,typescript,36000,pnpm install,pnpm test,2,0.3,True,True,True,1000,bug|docs|test,0
+shadcn-ui/ui,typescript,82000,pnpm install,pnpm test,2,0.2,True,False,True,500,docs|a11y|component,0
+nestjs/nest,typescript,69000,npm install,npm test,4,0.2,True,True,False,1000,bug|docs|module,0
+nestjs/cli,typescript,4000,npm install,npm test,5,0.3,False,False,False,200,bug|docs,0
+typescript-eslint/typescript-eslint,typescript,16000,npm install,npm test,3,0.3,True,True,True,1000,rule|bug|docs,0
+eslint/eslint,typescript,25000,npm install,npm test,5,0.2,True,True,True,2000,rule|bug|docs,0
+prettier/prettier,typescript,50000,npm install,npm test,7,0.15,True,True,False,1000,bug|format|docs,0
+date-fns/date-fns,typescript,34500,npm install,npm test,5,0.3,True,True,False,500,bug|locale|docs,0
+vueuse/vueuse,typescript,20000,pnpm install,pnpm test,2,0.35,True,True,True,800,composable|bug|docs,0
+storybookjs/storybook,typescript,85000,npm install,npm test,5,0.2,True,True,True,2000,bug|addon|docs,0
+remix-run/remix,typescript,30000,npm install,npm test,3,0.25,True,False,True,1500,bug|loader|docs,0
+apollographql/apollo-client,typescript,19000,npm install,npm test,7,0.15,True,False,False,1000,bug|cache|docs,0
+graphql/graphql-js,typescript,14000,npm install,npm test,10,0.1,True,False,False,500,bug|spec|test,0
+jestjs/jest,typescript,44000,npm install,npm test,10,0.1,True,False,False,1000,bug|matcher|docs,0
+vitest-dev/vitest,typescript,14000,pnpm install,pnpm test,2,0.35,True,True,True,800,bug|matcher|docs,0
+nuxt/nuxt,typescript,55000,pnpm install,pnpm test,3,0.25,True,True,True,2000,bug|module|docs,0
+strapi/strapi,typescript,65000,npm install,npm test,5,0.2,True,False,True,1500,bug|plugin|docs,0
+calcom/cal.com,typescript,36000,yarn install,yarn test,3,0.3,True,True,True,2000,bug|integration|docs,0
+supabase/supabase,typescript,80000,npm install,npm test,3,0.2,True,True,True,3000,bug|auth|docs,0
+appwrite/appwrite,typescript,47000,pnpm install,pnpm test,3,0.25,True,True,True,2000,bug|sdk|docs,0
+nestjs/nest-cli,typescript,3000,npm install,npm test,5,0.3,False,False,False,100,bug|schematic,0
+nrwl/nx,typescript,24000,npm install,npm test,4,0.2,True,False,True,1500,bug|plugin|docs,0
+tannerlinsley/react-query,typescript,43000,npm install,npm test,3,0.25,True,True,True,1000,bug|hook|docs,0
+colinhacks/zod,typescript,36000,npm install,npm test,3,0.3,True,True,True,800,bug|schema|docs,0
+Effect-TS/effect,typescript,8000,npm install,npm test,3,0.3,True,True,True,500,bug|effect|docs,0
+faker-js/faker,typescript,13000,npm install,npm test,2,0.35,True,True,True,500,locale|bug|docs,0
+clerk/javascript,typescript,5000,npm install,npm test,3,0.3,True,False,True,500,bug|sdk|docs,0
+redis/ioredis,typescript,14000,npm install,npm test,5,0.25,True,True,False,800,bug|command|docs,0
+socketio/socket.io,typescript,61000,npm install,npm test,7,0.15,True,False,False,500,bug|transport|docs,0
+winstonjs/winston,typescript,23000,npm install,npm test,10,0.2,True,True,False,300,bug|transport|docs,0
+pinojs/pino,typescript,14000,npm install,npm test,4,0.25,True,True,False,300,bug|transport|docs,0
+fastify/fastify,typescript,33000,npm install,npm test,3,0.3,True,True,True,1000,bug|plugin|docs,0
+honojs/hono,typescript,23000,npm install,npm test,2,0.35,True,True,True,500,bug|middleware|docs,0
+elysiajs/elysia,typescript,11000,npm install,npm test,2,0.35,True,True,True,300,bug|plugin|docs,0
+openai/openai-node,typescript,8000,npm install,npm test,3,0.3,True,False,False,500,bug|api|docs,0
+anthropics/anthropic-sdk-typescript,typescript,1200,npm install,npm test,2,0.4,True,False,False,300,bug|api|docs,0
+langchain-ai/langchainjs,typescript,14000,npm install,npm test,3,0.25,True,True,True,1000,bug|chain|docs,0
+huggingface/chat-ui,typescript,8000,npm install,npm test,4,0.25,True,False,True,500,bug|ui|docs,0
+dubinc/dub,typescript,20000,npm install,npm test,2,0.3,True,True,True,1000,bug|api|docs,0
+documenso/documenso,typescript,9000,npm install,npm test,3,0.3,True,True,True,800,bug|feature|docs,0
+django/django,python,82000,pip install -e .,python -m pytest,3,0.2,True,False,False,3000,bug|orm|docs,0
+flask-admin/flask-admin,python,5700,pip install -e .,pytest,7,0.3,True,True,False,300,bug|view|docs,0
+fastapi/fastapi,python,81000,pip install -e .,pytest,2,0.35,True,True,True,2000,bug|docs|dependency,0
+pallets/flask,python,68000,pip install -e .,pytest,5,0.2,True,True,False,1000,bug|docs|extension,0
+celery/celery,python,24000,pip install -e .,pytest,7,0.2,True,True,False,800,bug|backend|docs,0
+scrapy/scrapy,python,53000,pip install -e .,pytest,5,0.25,True,True,False,500,bug|spider|docs,0
+pandas-dev/pandas,python,44000,pip install -e .,pytest,7,0.15,True,True,False,2000,bug|dtype|docs,0
+numpy/numpy,python,28000,pip install -e .,pytest,10,0.1,True,True,False,1500,bug|ufunc|docs,0
+psf/requests,python,52000,pip install -e .,pytest,14,0.1,True,True,False,500,bug|adapter|docs,0
+urllib3/urllib3,python,4000,pip install -e .,pytest,5,0.25,True,True,True,1000,bug|pool|docs,0
+encode/httpx,python,13000,pip install -e .,pytest,3,0.3,True,True,True,800,bug|auth|docs,0
+python-attrs/attrs,python,5200,pip install -e .,pytest,5,0.3,True,True,False,300,bug|validator|docs,0
+pydantic/pydantic,python,23000,pip install -e .,pytest,3,0.3,True,True,True,1500,bug|schema|docs,0
+sqlalchemy/sqlalchemy,python,10000,pip install -e .,pytest,7,0.15,True,True,False,1000,bug|dialect|docs,0
+marshmallow-code/marshmallow,python,7000,pip install -e .,pytest,5,0.25,True,True,False,300,bug|field|docs,0
+pytest-dev/pytest,python,12000,pip install -e .,pytest,5,0.2,True,True,False,1000,bug|fixture|docs,0
+tox-dev/tox,python,4000,pip install -e .,pytest,5,0.25,True,True,False,300,bug|env|docs,0
+python-poetry/poetry,python,16000,pip install -e .,pytest,5,0.2,True,True,True,800,bug|lockfile|docs,0
+pypa/pip,python,30000,pip install -e .,pytest,10,0.1,True,True,False,500,bug|resolver|docs,0
+pre-commit/pre-commit,python,13000,pip install -e .,pytest,5,0.2,True,True,False,300,bug|hook|docs,0
+home-assistant/core,python,75000,pip install -r requirements.txt,pytest,3,0.25,True,True,True,2000,integration|bug|docs,0
+scikit-learn/scikit-learn,python,60000,pip install -e .,pytest,7,0.15,True,True,False,1500,bug|estimator|docs,0
+matplotlib/matplotlib,python,20000,pip install -e .,pytest,7,0.15,True,True,False,800,bug|axes|docs,0
+sympy/sympy,python,13000,pip install -e .,pytest,5,0.2,True,True,False,500,bug|function|docs,0
+django-rest-framework/django-rest-framework,python,28000,pip install -e .,pytest,5,0.2,True,True,False,800,bug|serializer|docs,0
+encode/django-rest-framework,python,28000,pip install -e .,pytest,5,0.2,True,True,False,500,bug|serializer|docs,0
+tiangolo/full-stack-fastapi-template,python,27000,pip install -e .,pytest,3,0.3,True,True,True,500,bug|template|docs,0
+openai/openai-python,python,25000,pip install -e .,pytest,2,0.35,True,False,False,500,bug|api|docs,0
+anthropics/anthropic-sdk-python,python,4000,pip install -e .,pytest,2,0.4,True,False,False,300,bug|api|docs,0
+langchain-ai/langchain,python,100000,pip install -e .,pytest,2,0.3,True,True,True,2000,bug|chain|docs,0
+streamlit/streamlit,python,40000,pip install -e .,pytest,3,0.25,True,True,True,1500,bug|widget|docs,0
+apache/airflow,python,40000,pip install -e .,pytest,5,0.15,True,False,False,1000,bug|operator|docs,0
+prefecthq/prefect,python,18000,pip install -e .,pytest,3,0.3,True,True,True,1000,bug|flow|docs,0
+dagster-io/dagster,python,12000,pip install -e .,pytest,3,0.3,True,True,True,800,bug|asset|docs,0
+huggingface/transformers,python,140000,pip install -e .,pytest,5,0.15,True,True,True,3000,bug|model|docs,0
+mlflow/mlflow,python,19000,pip install -e .,pytest,5,0.2,True,False,False,1000,bug|tracking|docs,0
+ray-project/ray,python,35000,pip install -e .,pytest,5,0.2,True,True,False,1500,bug|actor|docs,0
+mitmproxy/mitmproxy,python,37000,pip install -e .,pytest,5,0.2,True,True,False,1000,bug|addon|docs,0
+yt-dlp/yt-dlp,python,105000,pip install -e .,pytest,2,0.3,True,True,True,500,bug|extractor|docs,0
+httpie/cli,python,35000,pip install -e .,pytest,5,0.2,True,True,True,500,bug|cli|docs,0
+seleniumbase/SeleniumBase,python,6000,pip install -e .,pytest,2,0.35,True,True,True,300,bug|mode|docs,0
+PostHog/posthog,python,23000,pip install -e .,pytest,3,0.25,True,True,True,1000,bug|event|docs,0
+All-Hands-AI/OpenHands,python,45000,pip install -e .,pytest,2,0.3,True,True,True,2000,bug|agent|docs,0
+open-webui/open-webui,python,80000,pip install -e .,pytest,2,0.3,True,True,True,1000,bug|ui|docs,0
+MushroomLabs/Farcaster-Protocol,python,5000,pip install -e .,pytest,3,0.25,True,True,True,800,bug|protocol|docs,0
+getsentry/sentry-python,python,1700,pip install -e .,pytest,3,0.3,True,True,False,500,bug|integration|docs,0
+zeromq/pyzmq,python,3200,pip install -e .,pytest,5,0.25,True,True,False,300,bug|socket|docs,0
+python/cpython,python,66000,pip install -e .,python -m test,14,0.05,True,False,False,500,bug|stdlib|docs,0
+pypa/setuptools,python,2400,pip install -e .,pytest,7,0.15,True,True,False,200,bug|build|docs,0

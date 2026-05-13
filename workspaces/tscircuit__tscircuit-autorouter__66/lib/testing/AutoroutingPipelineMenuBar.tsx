@@ -1,0 +1,322 @@
+import { CacheProvider } from "lib/cache/types"
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
+  MenubarTrigger,
+} from "lib/testing/ui/menubar" // Assuming shadcn components are here
+import {
+  type CacheProviderName,
+  SPEED_DEFINITIONS,
+  cacheProviderNames,
+} from "./AutoroutingPipelineDebugger"
+
+const cacheProviders: CacheProviderName[] = [
+  "None",
+  "In Memory",
+  "Local Storage",
+]
+
+export const EFFORT_LEVELS = [1, 2, 5, 10, 20, 50, 100] as const
+export type EffortLevel = (typeof EFFORT_LEVELS)[number]
+export const LAYER_OVERRIDE_OPTIONS = ["auto", 1, 2, 4] as const
+export type LayerOverride = (typeof LAYER_OVERRIDE_OPTIONS)[number]
+
+export const PIPELINE_OPTIONS = [
+  {
+    id: "AutoroutingPipeline1_OriginalUnravel",
+    label: "Pipeline1 Original Unravel (Legacy)",
+  },
+  {
+    id: "AutoroutingPipelineSolver2_PortPointPathing",
+    label: "Pipeline2 Port Point Pathing (Default)",
+  },
+  {
+    id: "AutoroutingPipelineSolver3_HgPortPointPathing",
+    label: "Pipeline3 Hypergraph Port Point Pathing",
+  },
+  {
+    id: "AutoroutingPipelineSolver4",
+    label: "Pipeline4 Tiny Hypergraph Port Point Pathing",
+  },
+  {
+    id: "AutoroutingPipelineSolver5",
+    label: "Pipeline5 HD Cache Port Point Pathing",
+  },
+  {
+    id: "AutoroutingPipelineSolver6",
+    label: "Pipeline6 Poly Hypergraph",
+  },
+  {
+    id: "AssignableAutoroutingPipeline1Solver",
+    label: "Assignable Pipeline 1",
+  },
+  {
+    id: "AssignableAutoroutingPipeline2",
+    label: "Assignable Pipeline 2",
+  },
+  {
+    id: "AssignableAutoroutingPipeline3",
+    label: "Assignable Pipeline 3 (Jumpers)",
+  },
+  {
+    id: "KrtAutoroutingPipelineSolver",
+    label: "KRT Autorouter (WASM)",
+  },
+] as const
+
+export type PipelineId = (typeof PIPELINE_OPTIONS)[number]["id"]
+
+interface AutoroutingPipelineMenuBarProps {
+  renderer: "canvas" | "vector"
+  onSetRenderer: (renderer: "canvas" | "vector") => void
+  canSelectObjects: boolean
+  onSetCanSelectObjects: (canSelect: boolean) => void
+  onRunDrcChecks: () => void
+  onRunRelaxedDrcChecks: () => void
+  canTogglePcbSvg: boolean
+  pcbSvgEnabled: boolean
+  onTogglePcbSvg: () => void
+  autoSolve: boolean
+  onSetAutoSolve: (autoSolve: boolean) => void
+  autoRunDrc: boolean
+  onSetAutoRunDrc: (autoRunDrc: boolean) => void
+  animationSpeed: number
+  onSetAnimationSpeed: (speed: number) => void
+  onSolveToBreakpointClick: () => void
+  cacheProviderName: CacheProviderName
+  cacheProvider: CacheProvider | null
+  onSetCacheProviderName: (provider: CacheProviderName) => void
+  onClearCache: () => void
+  selectedPipelineId: PipelineId
+  onSetPipelineId: (pipelineId: PipelineId) => void
+  effort: EffortLevel
+  onSetEffort: (effort: EffortLevel) => void
+  layerOverride: LayerOverride
+  defaultLayerCount: number
+  onSetLayerOverride: (layerOverride: LayerOverride) => void
+}
+
+export const AutoroutingPipelineMenuBar = ({
+  renderer,
+  onSetRenderer,
+  animationSpeed,
+  onSetAnimationSpeed,
+  canSelectObjects,
+  onSetCanSelectObjects,
+  onRunDrcChecks,
+  onRunRelaxedDrcChecks,
+  canTogglePcbSvg,
+  pcbSvgEnabled,
+  onTogglePcbSvg,
+  autoSolve,
+  onSetAutoSolve,
+  autoRunDrc,
+  onSetAutoRunDrc,
+  onSolveToBreakpointClick,
+  cacheProviderName,
+  cacheProvider,
+  onSetCacheProviderName,
+  onClearCache,
+  selectedPipelineId,
+  onSetPipelineId,
+  effort,
+  onSetEffort,
+  layerOverride,
+  defaultLayerCount,
+  onSetLayerOverride,
+}: AutoroutingPipelineMenuBarProps) => {
+  const layerOverrideLabel =
+    layerOverride === "auto"
+      ? `auto (${defaultLayerCount})`
+      : String(layerOverride)
+
+  return (
+    <Menubar className="rounded-none border-b border-none px-2 lg:px-4 mb-4 light">
+      <MenubarMenu>
+        <MenubarTrigger>Pipeline</MenubarTrigger>
+        <MenubarContent>
+          {PIPELINE_OPTIONS.map((option) => (
+            <MenubarItem
+              key={option.id}
+              onClick={() => onSetPipelineId(option.id)}
+              disabled={selectedPipelineId === option.id}
+            >
+              {option.label}{" "}
+              {selectedPipelineId === option.id && (
+                <MenubarShortcut>✓</MenubarShortcut>
+              )}
+            </MenubarItem>
+          ))}
+          <MenubarSeparator />
+          <MenubarSub>
+            <MenubarSubTrigger>Effort: {effort}x</MenubarSubTrigger>
+            <MenubarSubContent>
+              {EFFORT_LEVELS.map((level) => (
+                <MenubarItem
+                  key={level}
+                  onClick={() => onSetEffort(level)}
+                  disabled={effort === level}
+                >
+                  {level}x
+                  {effort === level && <MenubarShortcut>✓</MenubarShortcut>}
+                </MenubarItem>
+              ))}
+            </MenubarSubContent>
+          </MenubarSub>
+          <MenubarSub>
+            <MenubarSubTrigger>Layers: {layerOverrideLabel}</MenubarSubTrigger>
+            <MenubarSubContent>
+              {LAYER_OVERRIDE_OPTIONS.map((option) => {
+                const label =
+                  option === "auto"
+                    ? `auto (${defaultLayerCount})`
+                    : String(option)
+                return (
+                  <MenubarItem
+                    key={option}
+                    onClick={() => onSetLayerOverride(option)}
+                    disabled={layerOverride === option}
+                  >
+                    {label}
+                    {layerOverride === option && (
+                      <MenubarShortcut>✓</MenubarShortcut>
+                    )}
+                  </MenubarItem>
+                )
+              })}
+            </MenubarSubContent>
+          </MenubarSub>
+        </MenubarContent>
+      </MenubarMenu>
+      <MenubarMenu>
+        <MenubarTrigger>Renderer</MenubarTrigger>
+        <MenubarContent>
+          <MenubarItem
+            onClick={() => onSetRenderer("canvas")}
+            disabled={renderer === "canvas"}
+          >
+            Canvas{" "}
+            {renderer === "canvas" && <MenubarShortcut>✓</MenubarShortcut>}
+          </MenubarItem>
+          <MenubarItem
+            onClick={() => onSetRenderer("vector")}
+            disabled={renderer === "vector"}
+          >
+            Vector{" "}
+            {renderer === "vector" && <MenubarShortcut>✓</MenubarShortcut>}
+          </MenubarItem>
+        </MenubarContent>
+      </MenubarMenu>
+      <MenubarMenu>
+        <MenubarTrigger>Debug</MenubarTrigger>
+        <MenubarContent>
+          <MenubarItem onClick={() => onSetCanSelectObjects(!canSelectObjects)}>
+            {canSelectObjects ? "Disable" : "Enable"} Object Interaction
+            {canSelectObjects && <MenubarShortcut>✓</MenubarShortcut>}
+          </MenubarItem>
+          <MenubarItem onClick={onSolveToBreakpointClick}>
+            Solve to Breakpoint
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem onClick={onRunDrcChecks}>Run DRC Checks</MenubarItem>
+          <MenubarItem onClick={onRunRelaxedDrcChecks}>
+            Run Relaxed DRC Checks
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem
+            onClick={onTogglePcbSvg}
+            disabled={!canTogglePcbSvg && !pcbSvgEnabled}
+          >
+            Show PCB SVG
+            {pcbSvgEnabled && <MenubarShortcut>✓</MenubarShortcut>}
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarSub>
+            <MenubarSubTrigger>Automations</MenubarSubTrigger>
+            <MenubarSubContent>
+              <MenubarItem onClick={() => onSetAutoSolve(!autoSolve)}>
+                Auto Solve
+                {autoSolve && <MenubarShortcut>✓</MenubarShortcut>}
+              </MenubarItem>
+              <MenubarItem onClick={() => onSetAutoRunDrc(!autoRunDrc)}>
+                Auto DRC Check
+                {autoRunDrc && <MenubarShortcut>✓</MenubarShortcut>}
+              </MenubarItem>
+            </MenubarSubContent>
+          </MenubarSub>
+        </MenubarContent>
+      </MenubarMenu>
+      <MenubarMenu>
+        <MenubarTrigger>Animation</MenubarTrigger>
+        <MenubarContent>
+          {SPEED_DEFINITIONS.map((speedDef, index) => (
+            <MenubarItem
+              key={speedDef.label}
+              onClick={() => onSetAnimationSpeed(index)}
+              disabled={animationSpeed === index}
+            >
+              {speedDef.label}{" "}
+              {animationSpeed === index && <MenubarShortcut>✓</MenubarShortcut>}
+            </MenubarItem>
+          ))}
+        </MenubarContent>
+      </MenubarMenu>
+      <MenubarMenu>
+        <MenubarTrigger>Cache</MenubarTrigger>
+        <MenubarContent>
+          <MenubarSub>
+            <MenubarSubTrigger>Set Cache Provider</MenubarSubTrigger>
+            <MenubarSubContent>
+              {cacheProviderNames.map((provider) => (
+                <MenubarItem
+                  key={provider}
+                  onClick={() => onSetCacheProviderName(provider)}
+                  disabled={cacheProviderName === provider}
+                >
+                  {provider}
+                  {cacheProviderName === provider && (
+                    <MenubarShortcut>✓</MenubarShortcut>
+                  )}
+                </MenubarItem>
+              ))}
+            </MenubarSubContent>
+          </MenubarSub>
+          <MenubarSeparator />
+          <MenubarItem onClick={onClearCache}>Clear Cache</MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem disabled>
+            Cache Keys: {cacheProvider?.getAllCacheKeys().length}
+          </MenubarItem>
+          <MenubarItem disabled>
+            Cache Hits: {cacheProvider?.cacheHits}
+          </MenubarItem>
+          <MenubarItem disabled>
+            Cache Misses: {cacheProvider?.cacheMisses}
+          </MenubarItem>
+          <MenubarSeparator />
+          {cacheProvider?.cacheHitsByPrefix &&
+            Object.entries(cacheProvider.cacheHitsByPrefix).map(
+              ([prefix, hits]) => {
+                const misses = cacheProvider.cacheMissesByPrefix?.[prefix] || 0
+                const total = hits + misses
+                const percentage =
+                  total > 0 ? ((hits / total) * 100).toFixed(1) : "N/A"
+                return (
+                  <MenubarItem key={`hits-${prefix}`} disabled>
+                    {prefix} {percentage}%
+                  </MenubarItem>
+                )
+              },
+            )}
+        </MenubarContent>
+      </MenubarMenu>
+    </Menubar>
+  )
+}

@@ -1,0 +1,98 @@
+# Opportunity Radar - MVP Configuration
+# 技术栈: TypeScript / Python
+# 每日审批时间: 15分钟
+# 第一阶段目标: 赚钱优先，本地预检止步
+
+stacks:
+  - typescript
+  - python
+
+# 人类闸门配置
+human_gates:
+  daily_review_minutes: 15
+  auto_submit_non_security: false     # 第一阶段不自动对外提交
+  security_requires_approval: true    # 安全任务必须人工审批
+  max_auto_pr_per_day: 0              # 不自动开 PR
+  claim_requires_approval: true       # 领赏必须人工确认
+
+# 打分权重
+scoring:
+  payment_certainty: 30              # 支付确定性
+  verifiability: 25                  # 可验证性
+  ai_fitness: 20                     # AI适配度
+  maintainer_activity: 15            # 维护者活跃度
+  context_reuse: 10                  # 上下文复用
+  risk_penalty_max: -25              # 风险惩罚上限
+
+# 每日扫描配置
+scanner:
+  platforms:
+    - algora
+    - algora-github
+    - issuehunt
+    - onlydust
+    - huntr
+  disabled_platforms:
+    - immunefi
+    - code4rena
+    - sherlock
+  github_searches:
+    - 'is:issue is:open "bounty" no:assignee updated:>=2026-04-01'
+    - 'is:issue is:open "reward" no:assignee updated:>=2026-04-01'
+    - 'is:issue is:open label:"help wanted" label:"good first issue" no:assignee'
+    - 'is:issue is:open label:documentation no:assignee updated:>=2026-04-01'
+    - 'is:issue is:open label:test no:assignee updated:>=2026-04-01'
+    - 'is:issue is:open "regression test" no:assignee'
+    - 'is:issue is:open "migration" "help wanted" no:assignee'
+  github_repo_searches:
+    - 'good-first-issues:>5 language:TypeScript pushed:>2026-04-01'
+    - 'good-first-issues:>5 language:Python pushed:>2026-04-01'
+    - 'help-wanted-issues:>5 stars:100..20000 pushed:>2026-04-01'
+  top_n_candidates: 3                # 每天只让 agent 尝试赚钱榜 Top 3
+  practice_backlog_size: 10          # 无明确收益但适合练手的备用候选
+  max_issue_age_days: 90             # 只保留近90天仍活跃的 issue
+  require_payment_for_top: true      # Top 候选必须有明确支付路径
+  min_expected_value: 0              # Top 候选必须为正 EV
+
+# 本地预检配置
+execution:
+  workspace_dir: workspaces
+  allow_external_writes: false       # 不 push、不开 PR、不对外评论
+  clone_timeout_seconds: 600
+  install_timeout_seconds: 600
+  test_timeout_seconds: 600
+
+# 收款限制
+payout:
+  allow_kyc: false                    # 无法提供 KYC
+  allow_tax_forms: false              # 无法提供税务资料
+  filter_required_kyc: true           # 明确需要 KYC/税务的候选直接过滤
+  require_manual_review_if_unknown: true
+
+# 白名单配置
+whitelist:
+  initial_size: 100
+  min_stars: 50
+  max_stars: 50000
+
+# 指标追踪
+metrics:
+  primary: dollar_per_agent_hour      # 第一阶段看单位时间收益
+  secondary:
+    - money_candidates_per_day
+    - preflight_pass_rate
+    - accepted_PR_per_day
+    - paid_PR_per_day
+    - dollar_per_agent_hour
+    - best_repos_by_ev
+  review_cycle_days: 30              # 30天淘汰低质量渠道
+
+# 避开任务类型
+avoid:
+  - vague_feature_requests
+  - requires_product_judgment
+  - requires_aesthetic_judgment
+  - no_tests_complex_build
+  - inactive_maintainer
+  - security_without_poc              # 安全领域无PoC不提交
+  - security_without_scope            # 无授权范围不提交
