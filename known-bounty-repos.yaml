@@ -87,7 +87,7 @@ known_bounty_repos:
     tags: ["opencollective"]
 
   # Plasmic - 可视化页面构建器，有赏金计划
-  - repo: plasmic-hq/plasmic
+  - repo: plasmicapp/plasmic
     language: typescript
     labels: ["bounty", "help wanted"]
     bounty_source: "github-sponsors"
@@ -111,7 +111,7 @@ known_bounty_repos:
     tags: ["active"]
 
   # Postiz - 开源社交媒体排程
-  - repo: postiz-app/postiz
+  - repo: gitroomhq/postiz-app
     language: typescript
     labels: ["bounty", "help wanted"]
     bounty_source: "github-sponsors"
@@ -225,13 +225,6 @@ known_bounty_repos:
     expected_bounty_range: [50, 500]
     tags: ["active"]
 
-  # TraceTest - 基于 OpenTelemetry 的测试工具
-  - repo: froglogic/tracetest
-    language: typescript
-    labels: ["bounty", "help wanted", "good first issue"]
-    bounty_source: "github-sponsors"
-    expected_bounty_range: [50, 300]
-    tags: ["active"]
 
   # Vercel AI SDK - AI 开发工具
   - repo: vercel/ai
