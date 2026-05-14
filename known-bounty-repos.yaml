@@ -1,7 +1,7 @@
 # Opportunity Radar - 已知赏金仓库热区表
 # 这些仓库已知会发布赏金/付费 issue，每日主动扫描
 # 来源：Algora, IssueHunt, OnlyDust, GitHub bounty 标签, 人工验证
-# 更新时间：2026-05-14
+# 更新时间：2026-05-14 13:00 (热区扩展 +4)
 
 known_bounty_repos:
   # ==================== TypeScript / JavaScript ====================
@@ -240,3 +240,44 @@ known_bounty_repos:
     bounty_source: "github-sponsors"
     expected_bounty_range: [100, 500]
     tags: ["high-profile"]
+
+  # ==================== 2026-05-14 热区扩展：新发现赏金仓库 ====================
+  # 来源: gh search issues, Algora challenges, GitHub API 搜索
+
+  # Claude Builders Bounty - Claude Code 技能/钩子/代理赏金社区 ★★★★★
+  - repo: claude-builders-bounty/claude-builders-bounty
+    language: typescript
+    labels: ["bounty"]
+    bounty_source: "github-sponsors"
+    expected_bounty_range: [50, 200]
+    tags: ["active", "ai-agent", "low-competition"]
+    notes: "Claude Code 社区赏金板。现有5个开放赏金：SKILL($50)、TEMPLATE($75)、HOOK($100)、AGENT($150)、WORKFLOW($200)。所有任务均为 AI 代理友好型 TypeScript/Claude Code 配置任务。极低竞争。2026-05-14 新发现。"
+
+  # TSPerf Tracer - TypeScript 类型复杂度 VSCode 扩展 (Algora Challenge)
+  - repo: tsperf/tracer
+    language: typescript
+    labels: ["bounty", "help wanted"]
+    bounty_source: "algora"
+    expected_bounty_range: [500, 5000]
+    tags: ["algora", "active", "low-competition"]
+    notes: "Algora Challenge 赏金。VSCode 扩展测量 TypeScript 类型复杂度。TypeScript 项目（178 stars）。Algora 平台免 KYC。2026-05-14 新发现。"
+
+  # Screenpipe - 本地 AI 屏幕记录代理 (高星级，部分赏金)
+  - repo: screenpipe/screenpipe
+    language: rust
+    labels: ["bounty", "help wanted"]
+    bounty_source: "community"
+    expected_bounty_range: [100, 1000]
+    tags: ["high-volume", "high-profile"]
+    notes: "18.7k stars 的本地 AI 屏幕记录项目。曾发布赏金 issue。主语言 Rust 不在当前技术栈，但可关注跨语言协作机会。2026-05-14 新发现。"
+
+  # ==================== 2026-05-14 热区扩展：已验证但有条件的赏金来源 ====================
+
+  # Spectral-Finance/lux - 多智能体 AI 框架，明确 USD 赏金
+  - repo: Spectral-Finance/lux
+    language: elixir
+    labels: ["bounty"]
+    bounty_source: "direct"
+    expected_bounty_range: [300, 2000]
+    tags: ["ai-agent", "high-value"]
+    notes: "多智能体 AI 框架（106 stars）。10+ 开放赏金($300-$2,000)：Discord($500)、Rust集成($300-$500)、Web3鉴权($1,000)、Gas优化($1,250)、智能合约监控($1,500)、Twitter分析($2,000)等。主语言 Elixir 不在当前技术栈，但部分赏金可用 TS/Python。需注意确定性验证。"

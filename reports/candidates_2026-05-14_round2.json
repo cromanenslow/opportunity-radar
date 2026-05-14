@@ -1,0 +1,122 @@
+{
+  "generated_at": "2026-05-14T11:41:00+08:00",
+  "scan_type": "full_known_repos_scan + low_star_pilot",
+  "repos_scanned": 29,
+  "issues_found": 52,
+  "proven_payer_scanned": [
+    "Expensify/App",
+    "tscircuit/schematic-trace-solver",
+    "tscircuit/tscircuit-autorouter",
+    "twentyhq/twenty",
+    "oppia/oppia",
+    "home-assistant/core",
+    "mattermost/mattermost",
+    "supabase/supabase"
+  ],
+  "rotation_additional_scanned": [
+    "amplication/amplication",
+    "maybe-finance/maybe",
+    "tscircuit/core",
+    "tscircuit/contribution-tracker",
+    "calcom/cal.com",
+    "nocodb/nocodb",
+    "plasmic-hq/plasmic",
+    "n8n-io/n8n",
+    "lobehub/lobe-chat",
+    "postiz-app/postiz",
+    "appwrite/appwrite",
+    "apache/apisix",
+    "mathesar-foundation/mathesar",
+    "SolFoundry/solfoundry",
+    "zama-ai/bounty-program",
+    "asyncapi/community",
+    "boxyhq/saas-starter-kit",
+    "gitpod-io/gitpod",
+    "coder/coder",
+    "froglogic/tracetest",
+    "vercel/ai"
+  ],
+  "known_disabled_issues": ["maybe-finance/maybe", "plasmic-hq/plasmic", "froglogic/tracetest", "postiz-app/postiz"],
+  "top_new_candidates": [
+    {
+      "rank": 1,
+      "repo": "tscircuit/core",
+      "issue": 2281,
+      "title": "manualEdits position double-counts the parent group's anchor for components inside a group",
+      "url": "https://github.com/tscircuit/core/issues/2281",
+      "bounty": 0,
+      "bounty_source": "algora (未确认)",
+      "assignees": 0,
+      "comments": 0,
+      "competition": "low",
+      "ai_fitness": "medium",
+      "precheck": "推荐关注 - 需确认Algora赏金"
+    },
+    {
+      "rank": 2,
+      "repo": "calcom/cal.com",
+      "issue": 29341,
+      "title": "@calcom/atoms crashes in Next.js App Router beyond version 2.6.0",
+      "url": "https://github.com/calcom/cal.com/issues/29341",
+      "bounty": 0,
+      "bounty_source": "algora (未确认)",
+      "assignees": 0,
+      "comments": 0,
+      "competition": "low",
+      "ai_fitness": "high",
+      "precheck": "推荐关注 - 有完整repro"
+    },
+    {
+      "rank": 3,
+      "repo": "boxyhq/saas-starter-kit",
+      "issue": 2511,
+      "title": "Missing RBAC authorization on payment/billing API endpoints",
+      "url": "https://github.com/boxyhq/saas-starter-kit/issues/2511",
+      "bounty": 0,
+      "bounty_source": "github-sponsors",
+      "assignees": 0,
+      "comments": 0,
+      "competition": "low",
+      "ai_fitness": "high",
+      "precheck": "有条件推荐 - 低收益但易修复"
+    },
+    {
+      "rank": 4,
+      "repo": "coder/coder",
+      "issue": 25275,
+      "title": "bug: A lot of parallel refresh token request with SSO Keycloak configuration",
+      "url": "https://github.com/coder/coder/issues/25275",
+      "bounty": 0,
+      "bounty_source": "github-sponsors",
+      "assignees": 0,
+      "comments": 0,
+      "competition": "low",
+      "ai_fitness": "medium",
+      "precheck": "暂缓 - 需Keycloak环境"
+    },
+    {
+      "rank": 5,
+      "repo": "SolFoundry/solfoundry",
+      "issue": 863,
+      "title": "🏭 Bounty T3: SolFoundry TypeScript SDK",
+      "url": "https://github.com/SolFoundry/solfoundry/issues/863",
+      "bounty": 0,
+      "bounty_source": "token ($FNDRY)",
+      "assignees": 0,
+      "comments": 7,
+      "competition": "low-medium",
+      "ai_fitness": "medium",
+      "precheck": "暂缓 - token价值不确定"
+    }
+  ],
+  "expensify_blocked": {
+    "90556": {"title": "[$250] Android Receipt capture", "assignees": ["jayeshmangwani"]},
+    "90554": {"title": "[$250] FAB Green circle", "assignees": ["shawnborton", "marufsharifi"]},
+    "90552": {"title": "[$250] Highlighted Background", "assignees": ["bernhardoj"]}
+  },
+  "low_star_pilot": {
+    "range_50_500": "Searched bounty/reward labeled issues in 50-500 star repos. Mostly crypto tokens (RTC/FNDRY), no USD bounty found.",
+    "range_100_2000": "Searched with dollar/help-wanted signals in 100-2000 star repos. No high-quality candidates found.",
+    "conclusion": "热区表29个仓库仍是最高价值来源。低star范围显式bounty较少，多为token项目。"
+  }
+}
