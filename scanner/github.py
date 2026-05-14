@@ -149,6 +149,61 @@ def search_issues(
     return issues
 
 
+def gh_issue_list(
+    repo: str,
+    labels: list[str] | None = None,
+    state: str = "open",
+    limit: int = 10,
+) -> list[RawIssue]:
+    """使用 gh issue list -R OWNER/REPO 查询 issue，替代 repo: 限定符（Bug 1 修复）
+
+    gh issue list 不走 search API，不会遇到 repo: 被括号包裹的 bug。
+    返回格式与 search_issues 兼容。
+    """
+    args = ["issue", "list", "--repo", repo, "--state", state, "--limit", str(limit)]
+    args += [
+        "--json",
+        "number,title,url,labels,createdAt,updatedAt,assignees,comments",
+    ]
+
+    if labels:
+        for label in labels:
+            args += ["--label", label]
+
+    results = run_gh(args)
+    if not results:
+        return []
+
+    issues = []
+    for item in results:
+        label_list = []
+        raw_labels = item.get("labels", [])
+        if isinstance(raw_labels, list):
+            label_list = [
+                l.get("name", "") if isinstance(l, dict) else str(l)
+                for l in raw_labels
+            ]
+
+        # gh issue list 返回 comments 数组，不是数字
+        comments_count = 0
+        raw_comments = item.get("comments", [])
+        if isinstance(raw_comments, list):
+            comments_count = len(raw_comments)
+
+        issues.append(RawIssue(
+            repo=repo,
+            issue_number=item.get("number", 0),
+            title=item.get("title", ""),
+            url=item.get("url", ""),
+            labels=label_list,
+            created_at=item.get("createdAt", ""),
+            updated_at=item.get("updatedAt", ""),
+            state=state,
+            comments_count=comments_count,
+        ))
+    return issues
+
+
 def search_repos(
     query: str,
     stars: str | None = None,
@@ -406,6 +461,10 @@ def scan_known_bounty_repos(config: dict, seen_urls: set[str] | None = None) -> 
 
     对 known-bounty-repos.yaml 中的每个仓库，主动搜索最新 open issue。
     优先搜索 bounty 相关标签，fallback 到 help wanted / good first issue。
+
+    Bug 1 修复: 使用 gh_issue_list() (gh issue list --repo) 替代 search_issues() ，
+              避免 repo: 限定符在 gh search issues 中被括号包裹导致 API 报错。
+    Bug 2 修复: proven-payer 仓库始终参与扫描，不受 _day_rotation 轮换影响。
     """
     all_issues: list[RawIssue] = []
     seen = seen_urls or set()
@@ -416,9 +475,9 @@ def scan_known_bounty_repos(config: dict, seen_urls: set[str] | None = None) -> 
 
     stacks = config.get("stacks", ["typescript", "python"])
 
-    print(f"\n=== 已知赏金仓库热区扫描 ({len(repos)} 个仓库) ===")
+    print(f"\n=== 已知赏金仓库热区扫描 ({len(repos)} 个仓库) ===\n")
 
-    # 按 bounty_source 分组，优先扫描 proven-payer
+    # 按优先级排序：proven-payer > algora/expensify > 其他
     prioritized = sorted(
         repos,
         key=lambda r: (
@@ -429,9 +488,19 @@ def scan_known_bounty_repos(config: dict, seen_urls: set[str] | None = None) -> 
         reverse=True,
     )
 
-    # 每天扫描上限，避免请求过多
+    # 每天扫描上限
     scan_limit = config.get("scanner", {}).get("known_bounty_scan_limit", 10)
-    daily_repos = _day_rotation(prioritized, scan_limit)
+
+    # ★ Bug 2 修复: proven-payer 仓库始终扫描，不参与轮换
+    proven_payer = [r for r in prioritized if "proven-payer" in r.get("tags", [])]
+    others = [r for r in prioritized if "proven-payer" not in r.get("tags", [])]
+    other_limit = max(0, scan_limit - len(proven_payer))
+    daily_others = _day_rotation(others, other_limit)
+    daily_repos = proven_payer + daily_others
+
+    print(f"  proven-payer: {len(proven_payer)} 个（始终扫描）")
+    print(f"  轮换补充: {len(daily_others)}/{len(others)} 个")
+    print()
 
     for repo_info in daily_repos:
         repo_name = repo_info.get("repo", "")
@@ -441,6 +510,7 @@ def scan_known_bounty_repos(config: dict, seen_urls: set[str] | None = None) -> 
         # 跳过不符合当前技术栈的 repo（除非是 proven-payer）
         if language and language.lower() not in [s.lower() for s in stacks]:
             if "proven-payer" not in repo_info.get("tags", []):
+                print(f"  ⏭️  {repo_name} (语言: {language} 不在技术栈中)")
                 continue
 
         if not repo_name:
@@ -452,10 +522,9 @@ def scan_known_bounty_repos(config: dict, seen_urls: set[str] | None = None) -> 
         # 策略 1: 搜索 bounty 相关标签（最高优先级）
         bounty_labels = [l for l in repo_labels if any(kw in l.lower() for kw in ["bounty", "reward", "$", "💰", "🏆", "💎"])]
         if bounty_labels:
-            issues = search_issues(
-                query=f"repo:{repo_name} is:issue is:open",
+            issues = gh_issue_list(
+                repo=repo_name,
                 labels=bounty_labels[:2],
-                sort="updated",
                 limit=5,
             )
             new = [i for i in issues if i.url not in seen]
@@ -468,10 +537,9 @@ def scan_known_bounty_repos(config: dict, seen_urls: set[str] | None = None) -> 
         if found < 3:
             for fallback_label in ["help wanted", "good first issue"]:
                 if any(fallback_label in l.lower() for l in repo_labels):
-                    issues = search_issues(
-                        query=f"repo:{repo_name} is:issue is:open",
+                    issues = gh_issue_list(
+                        repo=repo_name,
                         labels=[fallback_label],
-                        sort="updated",
                         limit=3,
                     )
                     new = [i for i in issues if i.url not in seen]
@@ -483,9 +551,8 @@ def scan_known_bounty_repos(config: dict, seen_urls: set[str] | None = None) -> 
 
         # 策略 3: 如果没有标签匹配，搜最新 open issue
         if found == 0:
-            issues = search_issues(
-                query=f"repo:{repo_name} is:issue is:open",
-                sort="updated",
+            issues = gh_issue_list(
+                repo=repo_name,
                 limit=3,
             )
             new = [i for i in issues if i.url not in seen]
@@ -496,7 +563,7 @@ def scan_known_bounty_repos(config: dict, seen_urls: set[str] | None = None) -> 
 
         print(f"{found} 个新 issue")
 
-    print(f"  热区扫描总计: {len(all_issues)} 个 candidate")
+    print(f"\n  热区扫描总计: {len(all_issues)} 个 candidate")
     return all_issues
 
 

@@ -81,7 +81,12 @@
 3. ✅ 评估 crosscompute/jupyterlab-crosscompute #39 可行性 — 已做，竞争过高，暂缓
 4. ✅ 2026-05-14 06:32 新扫描 + Expensify/App#88700 pre-check — 结论：暂缓（assignee 卡住）
 5. ✅ 已知赏金仓库热区表（known-bounty-repos.yaml）— 29 个仓库，三层兜底扫描函数，白名单 5→20
-6. 触发首次已知赏金仓库热区扫描，验证 money 发现率提升效果
+6. ✅ 首次已知赏金仓库热区扫描验证完成（2026-05-14 08:09）
+   - 扫描 29 个仓库中 10 个（8 proven-payer 始终扫描 + 2 轮换补充）
+   - Bug 1 修复验证：`gh issue list --repo X` 替代 `gh search issues -- "repo:X..."`，无 API 报错
+   - Bug 2 修复验证：proven-payer 仓库不再被 _day_rotation 轮换跳过
+   - 发现 25 个候选，含 Expensify/App $250 External 赏金 #90556、tscircuit/schematic-trace-solver #29 $100 等
+   - maybe-finance/maybe 已禁用 issues，后续可考虑从热区表移除
 7. 寻找下一个合适的 money 候选（$500+，JS/TS，竞争低，assignee 活跃）
 8. 连接远程 Git 仓库，建立开发分支
 9. 持续优化扫描精度，提升 money 候选发现率
