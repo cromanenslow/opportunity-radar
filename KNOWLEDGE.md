@@ -1,5 +1,5 @@
 # 机会雷达 KNOWLEDGE.md
-最后更新：2026-05-14 21:37（Heartbeat 16：增量扫描完成 — 自16:01以来所有已知热区仓库无新issue，Algora API不可用，管线持续枯竭；热区表需维护3个仓库名变更）
+最后更新：2026-05-16 03:03（Heartbeat 69：凌晨巡检 — 管线持续枯竭，无新 $250+ 未分配 bounty）
 
 ## 项目名称与目标
 **项目名称**：Opportunity Radar（机会雷达）
@@ -24,8 +24,17 @@
   - ⭐⭐⭐⭐ calcom/cal.diy #29341 — 今晚首选（1天龄、0竞争、完整repro、AI可行性90%）
   - ⭐⭐ tscircuit/core #2281 — 已有PR被关闭，赏金不确定，不推荐
   - ⭐ boxyhq/saas-starter-kit #2511 — 无赏金+已有PR 19天未合并，不推荐
+- ✅ Expensify/App#90693 Pre-check 完成 — 结论：❌ 不投入（竞争过于激烈，6 个提案已提交，时间窗口关闭）
 - 人工审批 / 实际动手阶段等待 Tao 决定
 - Expensify watcher 已通过 launchd 每1h执行（com.lflz.expensify-watcher），正常工作中
+- ✅ **Heartbeat 32（2026-05-15 07:29）新一轮全量扫描 + Expensify watcher 健康检查**
+  - 扫描结果：103 候选（3 赚钱 + 100 练手/噪声）
+  - Top 1 Expensify/App#89799 [$250] 已分配 mkhutornyi — ❌ 不可用
+  - Previous Expensify/App#90533 也已分配 QichenZhu — 待审批过期
+  - home-assistant/core#170761（CalDAV uid）和 #170757（To Do 大小写）为 $100 sponsor — 无确认赏金
+  - 练手池全为 Scottcjn/rustchain-bounties RTC token 噪声（IssueHunt 降级后遗症）
+  - **Expensify watcher**：✅ 正常运行（LastExitStatus=0，24h 内 13 次运行，0 错误），但 24h 内未发现新 unassigned $250 issue
+  - 结论：管线持续枯竭，等待下一批 Expensify $250 External 出现
 
 ## 团队配置
 | 角色 | 成员 | 职责 |
@@ -34,14 +43,15 @@
 | 工程师 | AI Agent | 扫描、打分、本地预检执行 |
 
 ## 运行状态
-- **最后扫描**：2026-05-14 21:37（UTC+8），增量扫描（已知热区表 + Algora + GitHub Issues）
-- **本轮发现**：自 16:01 以来无新高价值候选。已知热区仓库新增 issue = 0。管线继续枯竭。
+- **最后扫描**：2026-05-15 07:29（UTC+8），Heartbeat 32 全量扫描 — `python radar.py scan`
+- **本轮发现**：103 可执行候选（3 赚钱 + 100 练手/噪声）。热区 32 仓库扫描到 25 个新 issue。Expensify/App#89799 [$250] 是新的 Top 1，但**已分配**给 mkhutornyi。
 - **赚钱榜 Top（本轮扫描）**：
-  1. **Expensify/App#90628** — ⚠️ [$250] Email通知Bug，已有C+ reviewer和8+ proposals，竞争激烈
-  2. **Expensify/App#90067** — ❌ [$250] DEW提交动画Bug，proposal已选定，讨论中
-  3. **home-assistant/core#170591** — ⚠️ Withings date.today()时区Bug，无明确赏金，可做声誉贡献
-- **待审批**: Expensify/App#90533 [$250] — 等待 Tao 审批
-- **热区表维护提醒**: froglogic/tracetest 不存在；plasmic-hq/plasmic → plasmicapp/plasmic；postiz-app/postiz → gitroomhq/postiz-app
+  1. **Expensify/App#89799** — [$250] Incorrect Navigation Context After Merging Expenses — ❌ 已分配 mkhutornyi
+  2. **home-assistant/core#170761** — CalDAV integration: CalendarEvent.uid not populated — ✅ 未分配，但无确认赏金（$100 sponsor 不确定）
+  3. **home-assistant/core#170757** — Case problem in To Do lists with voice commands — ✅ 未分配，但无确认赏金（$100 sponsor 不确定）
+- **待审批**: ❌ 无 — Expensify/App#90533 已分配给 QichenZhu
+- ✅ **热区表已维护**（32 仓库，8 proven-payer + 24 轮换）
+- **所有 Expensify $250 已知 issue 均有 assignee**：#89799 (mkhutornyi)、#90533 (QichenZhu)、#90693 (ZhenjaHorbach)
 - **30天指标**：赚钱候选/天 0.2，预检通过率 0.0，合并率 0.0，$/agent-hour $0.0
 
 ## Pre-check Findings (2026-05-14 第三轮)
