@@ -7,11 +7,12 @@
 
 from __future__ import annotations
 import json
+import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Any, Optional
 from pathlib import Path
 
 
@@ -49,6 +50,82 @@ def _log_api_status(platform: str, status: str, reason: str = "") -> None:
 
 def get_api_status() -> dict[str, str]:
     return dict(_api_status)
+
+
+# ---------------------------------------------------------------------------
+# 文本净化辅助
+# ---------------------------------------------------------------------------
+def _clean_description(desc: str | None, max_len: int = 500) -> str:
+    """净化描述文本：去 HTML 标签、去 URL、截断过长代码块、去多余空白"""
+    if not desc:
+        return ""
+    text = str(desc)
+    # 1) 移除 HTML 标签
+    text = re.sub(r"<[^>]*>", "", text)
+    # 2) 移除 Markdown 图片/链接语法中的 URL 部分
+    text = re.sub(r"!\[.*?\]\(.*?\)", "", text)  # ![alt](url)
+    text = re.sub(r"\[.*?\]\(.*?\)", "", text)    # [text](url)
+    # 3) 截断超长代码块（markdown ``` 块内只保留前 200 字符）
+    text = re.sub(
+        r"```.*?\n(.*?)```",
+        lambda m: "```\n" + m.group(1).strip()[:200] + ("..." if len(m.group(1).strip()) > 200 else "") + "\n```",
+        text,
+        flags=re.DOTALL,
+    )
+    # 4) 移除孤立 URL（http/https/ftp）
+    text = re.sub(r"https?://\S+", "", text)
+    # 5) 压缩多余空白
+    text = re.sub(r"\s+", " ", text).strip()
+    # 6) 截断
+    if len(text) > max_len:
+        text = text[:max_len].rsplit(" ", 1)[0] + "..."
+    return text
+
+
+def _parse_bounty_amount(value: Any) -> float:
+    """鲁棒地解析赏金金额。
+
+    支持：
+    - 数值: 100, 50.5
+    - 字符串: "$100", "100 USD", "100", "$100-$200"（取大值）
+    - None / 空 -> 0.0
+    - "$1,000" -> 1000.0
+    """
+    if value is None:
+        return 0.0
+    if isinstance(value, (int, float)):
+        return float(max(value, 0))
+    if not isinstance(value, str):
+        return 0.0
+    text = value.strip()
+    if not text:
+        return 0.0
+    # 尝试整体解析 "$100" "100 USD" "100 USDC" "100.50"
+    m = re.match(r"^\$?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)\s*(?:USD|USDC)?\s*$", text, re.IGNORECASE)
+    if m:
+        try:
+            return float(m.group(1).replace(",", ""))
+        except ValueError:
+            pass
+    # 尝试范围: "$100-$200" "$50 - $100"
+    range_matches = re.findall(r"\$?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)", text)
+    if range_matches:
+        amounts = []
+        for am in range_matches:
+            try:
+                amounts.append(float(am.replace(",", "")))
+            except ValueError:
+                continue
+        if amounts:
+            return max(amounts)
+    # 兜底：提取所有数值
+    nums = re.findall(r"(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)", text)
+    if nums:
+        try:
+            return max(float(n.replace(",", "")) for n in nums)
+        except (ValueError, TypeError):
+            pass
+    return 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -184,17 +261,18 @@ def fetch_algora_bounties() -> list[PlatformBounty]:
     items = data if isinstance(data, list) else data.get("bounties", data.get("data", []))
     for item in items:
         try:
+            raw_amount = item.get("amount", item.get("reward", 0))
             bounties.append(PlatformBounty(
                 platform="algora",
                 repo=item.get("repo", item.get("repository", "")),
                 issue_number=item.get("issue_number", item.get("number", 0)),
                 title=item.get("title", ""),
                 url=item.get("url", item.get("html_url", "")),
-                amount=float(item.get("amount", item.get("reward", 0))),
+                amount=_parse_bounty_amount(raw_amount),
                 currency=item.get("currency", "USD"),
                 status=item.get("status", "open"),
                 labels=item.get("labels", []),
-                description=str(item.get("description", item.get("body", "")))[:500],
+                description=_clean_description(item.get("description", item.get("body", ""))),
                 payment_type="escrow" if item.get("escrow") else "platform",
             ))
         except (ValueError, TypeError):
@@ -251,7 +329,7 @@ def _fetch_algora_fallback() -> list[PlatformBounty]:
                         url=item.get("url", ""),
                         amount=amount,
                         labels=labels,
-                        description=str(item.get("body", ""))[:500],
+                        description=_clean_description(item.get("body", "")),
                         payment_type="escrow",
                     ))
                 except (ValueError, TypeError):
@@ -261,19 +339,24 @@ def _fetch_algora_fallback() -> list[PlatformBounty]:
 
 
 def _extract_amount(text: str) -> float:
-    """从文本中提取美元金额"""
-    import re
-    # 匹配 $100, $1,000, $50-$100, $50+
+    """从文本中提取美元金额 — 使用 _parse_bounty_amount 做最终解析"""
+    if not text:
+        return 0.0
+    # 匹配 $100, $1,000, $50-$100, $50+, 100 USD, 100 USDC
     patterns = [
-        r'\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)',
+        r'\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)',                            # $100
+        r'(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)\s*USD\b',                         # 100 USD
+        r'(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)\s*USDC\b',                        # 100 USDC
+        r'\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)\s*[-–—to]+\s*\$?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)',  # $100-$200
     ]
     amounts = []
     for pat in patterns:
-        for match in re.finditer(pat, text):
-            try:
-                amounts.append(float(match.group(1).replace(",", "")))
-            except ValueError:
-                continue
+        for match in re.finditer(pat, text, re.IGNORECASE):
+            for group_idx in range(1, match.lastindex + 1 if match.lastindex else 2):
+                try:
+                    amounts.append(float(match.group(group_idx).replace(",", "")))
+                except (ValueError, AttributeError):
+                    continue
     if amounts:
         return max(amounts)
     return 0.0
@@ -550,7 +633,7 @@ def fetch_algora_github_bounties() -> list[PlatformBounty]:
                     url=item.get("url", ""),
                     amount=amount,
                     labels=labels,
-                    description=str(item.get("body", ""))[:500],
+                    description=_clean_description(item.get("body", "")),
                     payment_type="escrow",
                 ))
             except (ValueError, TypeError):
