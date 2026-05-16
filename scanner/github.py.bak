@@ -33,7 +33,6 @@ class RawIssue:
     updated_at: str = ""
     state: str = "open"
     comments_count: int = 0
-    assignees: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -191,16 +190,6 @@ def gh_issue_list(
         if isinstance(raw_comments, list):
             comments_count = len(raw_comments)
 
-        # Parse assignees
-        assignee_list = []
-        raw_assignees = item.get("assignees", [])
-        if isinstance(raw_assignees, list):
-            assignee_list = [
-                a.get("login", "") if isinstance(a, dict) else str(a)
-                for a in raw_assignees
-                if a
-            ]
-
         issues.append(RawIssue(
             repo=repo,
             issue_number=item.get("number", 0),
@@ -211,7 +200,6 @@ def gh_issue_list(
             updated_at=item.get("updatedAt", ""),
             state=state,
             comments_count=comments_count,
-            assignees=assignee_list,
         ))
     return issues
 

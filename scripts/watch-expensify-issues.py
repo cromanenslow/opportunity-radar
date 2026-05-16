@@ -47,6 +47,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional, Union
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlparse, parse_qs, urlunparse, urljoin
@@ -92,7 +93,7 @@ def build_headers() -> dict:
     return headers
 
 
-def make_request(url: str, headers: dict, retries: int = 2) -> tuple[list | dict | None, dict]:
+def make_request(url: str, headers: dict, retries: int = 2) -> tuple[Optional[Union[list, dict]], dict]:
     """
     Make a GET request and return (parsed_json, response_headers).
     Returns (None, {}) on failure after retries.
@@ -197,7 +198,7 @@ def is_unassigned(issue: dict) -> bool:
 
 def fetch_labeled_issues(
     headers: dict,
-    since: str | None = None,
+    since: Optional[str] = None,
     max_pages: int = 10,
 ) -> list[dict]:
     """
@@ -325,7 +326,7 @@ def main() -> int:
     # ── Load state ──────────────────────────────────────────────────────
     state = load_state()
     seen_ids: dict = state.get("seen", {})
-    last_checked: str | None = state.get("last_checked")
+    last_checked: Optional[str] = state.get("last_checked")
 
     log.info(
         "Starting Expensify/App watcher (tracked=%d issues, last_checked=%s)",

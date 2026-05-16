@@ -1,4 +1,8 @@
 {
-  "seen": {},
-  "last_checked": "2026-05-14T13:34:33.054628+00:00"
+  "seen": {
+    "89799": "[$250] Incorrect Navigation Context After Merging Expenses (Always Redirects to Unreported View)",
+    "90533": "[$250] Expense - App crashes when deleting alias text after \"+\" in pasted email",
+    "90693": "[$250] Onboarding - Setup specialist has the onboarded user's email and a fallback avatar"
+  },
+  "last_checked": "2026-05-16T07:36:22.569476+00:00"
 }

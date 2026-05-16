@@ -11,7 +11,6 @@
 from __future__ import annotations
 
 import json
-import re
 import shlex
 import shutil
 import subprocess
@@ -36,15 +35,7 @@ from tracker.tracker import DeliveryTracker, TaskRecord
 from whitelist.initial_whitelist import load_whitelist
 
 
-TERMINAL_PREFLIGHT_FLAGS = {
-    "closed",
-    "locked",
-    "already-contested",
-    "has-linked-pr",
-    "has-pr-in-thread",
-    "has-assignee",
-    "not-expensify-money",
-}
+TERMINAL_PREFLIGHT_FLAGS = {"closed", "locked", "already-contested", "has-linked-pr", "has-pr-in-thread"}
 MANUAL_APPROVAL_FLAGS = {"new-repo", "ui-manual-check", "large-change-risk", "payout-unknown"}
 
 
@@ -165,9 +156,6 @@ def github_issue_to_candidate(issue, whitelist_names: set[str], whitelist_data: 
     in_whitelist = issue.repo in whitelist_names
     repo_info = whitelist_data.get(issue.repo, {})
 
-    # Check for pre-existing assignees (from gh_issue_list)
-    has_assignee_flag = len(getattr(issue, 'assignees', []) or []) > 0
-
     if in_whitelist:
         maint_days = repo_info.get("maintainer_response_days", 7.0)
         ext_pr_30d = repo_info.get("ext_pr_30d", 1)
@@ -223,7 +211,7 @@ def github_issue_to_candidate(issue, whitelist_names: set[str], whitelist_data: 
         has_sponsors=bool(repo_info.get("has_sponsors", False)),
         bounty_history=float(repo_info.get("bounty_history", 0.0)),
         issue_age_days=issue_age_days,
-        preflight_flags=_preflight_flags(issue.repo, combined, issue.labels, in_whitelist, bounty_amount=bounty_amount, payment_type=payment_type) + (["has-assignee"] if has_assignee_flag else []),
+        preflight_flags=_preflight_flags(issue.repo, combined, issue.labels, in_whitelist, bounty_amount=bounty_amount, payment_type=payment_type),
         description=body[:1000],
     )
 
@@ -248,41 +236,6 @@ def _build_whitelist_data() -> tuple[list, set[str], dict[str, dict]]:
     return whitelist, whitelist_names, whitelist_data
 
 
-def _label_names(data: dict) -> set[str]:
-    labels = data.get("labels", []) or []
-    names: set[str] = set()
-    for label in labels:
-        if isinstance(label, dict):
-            name = label.get("name", "")
-        else:
-            name = str(label)
-        if name:
-            names.add(name.lower())
-    return names
-
-
-def _expensify_money_issue_flags(data: dict) -> list[str]:
-    """Reject stale GitHub-search false positives for Expensify money alerts."""
-    flags: list[str] = []
-    title = data.get("title", "") or ""
-    labels = _label_names(data)
-
-    if data.get("closed") or data.get("state") == "CLOSED":
-        flags.append("closed")
-
-    assignees = data.get("assignees", []) or []
-    if assignees:
-        flags.append("has-assignee")
-
-    required_labels = {"external", "help wanted"}
-    has_required_labels = required_labels.issubset(labels)
-    has_250_title = bool(re.search(r"\[\s*\$250\s*\]", title))
-    if not has_required_labels or not has_250_title:
-        flags.append("not-expensify-money")
-
-    return flags
-
-
 def _deep_preflight_issue(candidate: dict) -> list[str]:
     repo = candidate.get("repo", "")
     issue_number = str(candidate.get("issue_number", ""))
@@ -298,7 +251,7 @@ def _deep_preflight_issue(candidate: dict) -> list[str]:
             "--repo",
             repo,
             "--json",
-            "body,comments,closed,closedByPullRequestsReferences,state,url,assignees,labels,title",
+            "body,comments,closed,closedByPullRequestsReferences,state,url",
         ],
         capture_output=True,
         text=True,
@@ -326,17 +279,6 @@ def _deep_preflight_issue(candidate: dict) -> list[str]:
         flags.append("has-pr-in-thread")
     if "supported countries" in text or "eligible for payouts" in text:
         flags.append("payout-eligibility-unknown")
-    if repo.lower() == "expensify/app":
-        for flag in _expensify_money_issue_flags(data):
-            if flag not in flags:
-                flags.append(flag)
-    # ★ 分配检测修复: 二次确认 issue 是否已有 assignee
-    assignees = data.get("assignees", []) or []
-    if assignees and len(assignees) > 0:
-        assignee_logins = [a.get("login", "?") for a in assignees]
-        print(f"      ⚠️ 已有 assignee: {', '.join(assignee_logins)}")
-        if "has-assignee" not in flags:
-            flags.append("has-assignee")
     return flags
 
 
@@ -366,11 +308,6 @@ def _enrich_competition_data(candidate: Candidate) -> Candidate:
 
     # assignee count
     candidate.assignee_count = len(data.get("assignees", []) or [])
-    if candidate.assignee_count > 0:
-        assignee_names = [a.get("login", "?") for a in (data.get("assignees", []) or [])]
-        print(f"    ⚠️ 二次确认: {candidate.repo}#{candidate.issue_number} 已有 assignee: {', '.join(assignee_names)}")
-        if "has-assignee" not in candidate.preflight_flags:
-            candidate.preflight_flags.append("has-assignee")
 
     # Count open PRs from closedByPullRequestsReferences
     open_pr_count = 0
